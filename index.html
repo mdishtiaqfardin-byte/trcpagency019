@@ -1,0 +1,2387 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRCP AGENCY - Dual-Portal Service Booking & Management System</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        gold: {
+                            400: '#facc15',
+                            500: '#eab308',
+                            600: '#ca8a04',
+                            700: '#a16207',
+                        },
+                        emeraldCustom: {
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'Hind Siliguri', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts for Bengali & English -->
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', 'Hind Siliguri', sans-serif; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .glass-card {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(234, 179, 8, 0.15);
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between selection:bg-gold-500 selection:text-slate-950">
+
+    <!-- TOP NAVIGATION BAR -->
+    <header class="sticky top-0 z-40 glass-panel border-b border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Brand Logo & Name -->
+                <div class="flex items-center gap-3 cursor-pointer" onclick="navigateTo('home')">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-gold-600 to-amber-400 flex items-center justify-center text-slate-950 font-black text-xl shadow-lg shadow-gold-500/20">
+                        TRCP
+                    </div>
+                    <div>
+                        <span class="text-xl font-extrabold tracking-wider bg-gradient-to-r from-amber-200 via-gold-400 to-amber-500 bg-clip-text text-transparent">
+                            TRCP AGENCY
+                        </span>
+                        <span class="block text-[10px] text-slate-400 uppercase tracking-widest font-semibold" data-i18n="tagline">Exclusive Service Network</span>
+                    </div>
+                </div>
+
+                <!-- Center Nav Links (Desktop) -->
+                <nav class="hidden md:flex items-center space-x-6">
+                    <button onclick="navigateTo('home')" class="hover:text-gold-400 transition font-medium text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-house text-gold-500"></i> <span data-i18n="nav_home">Home</span>
+                    </button>
+                    <button onclick="navigateTo('real_service')" class="hover:text-gold-400 transition font-medium text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-location-dot text-emerald-400"></i> <span data-i18n="nav_real">Real Service</span>
+                    </button>
+                    <button onclick="navigateTo('video_service')" class="hover:text-gold-400 transition font-medium text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-video text-purple-400"></i> <span data-i18n="nav_video">Video Service</span>
+                    </button>
+                    <button onclick="navigateTo('live_show')" class="hover:text-gold-400 transition font-medium text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-tower-broadcast text-rose-400"></i> <span data-i18n="nav_live">Live Show</span>
+                    </button>
+                    <button id="historyNavBtn" onclick="navigateTo('history')" class="hidden hover:text-gold-400 transition font-medium text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-clock-rotate-left text-blue-400"></i> <span data-i18n="nav_history">Booking History</span>
+                    </button>
+                </nav>
+
+                <!-- Right Tools (Language Switcher, User Auth Status, Mobile Menu Toggle) -->
+                <div class="flex items-center space-x-3">
+                    <!-- Language Switcher Button -->
+                    <button onclick="toggleLanguage()" class="px-3 py-1.5 rounded-lg border border-slate-700 bg-slate-900/80 hover:border-gold-500/50 text-xs font-semibold text-gold-400 flex items-center gap-1.5 transition">
+                        <i class="fa-solid fa-globe"></i>
+                        <span id="currentLangLabel">বাংলা</span>
+                    </button>
+
+                    <!-- Auth Actions -->
+                    <div id="clientAuthButtons" class="flex items-center space-x-2">
+                        <button onclick="openModal('loginModal')" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold border border-slate-700 text-slate-200 transition" data-i18n="login_btn">Login</button>
+                        <button onclick="openModal('registerModal')" class="px-3 py-1.5 rounded-lg bg-gradient-to-r from-gold-500 to-amber-600 hover:from-gold-600 hover:to-amber-700 text-slate-950 text-xs font-bold transition shadow-md shadow-gold-500/10" data-i18n="register_btn">Register</button>
+                    </div>
+
+                    <!-- User Profile Dropdown / Badge (When Logged In) -->
+                    <div id="loggedInUserBadge" class="hidden flex items-center gap-2">
+                        <div class="flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900 border border-gold-500/30">
+                            <i class="fa-solid fa-circle-user text-gold-400"></i>
+                            <span id="loggedInUserName" class="text-xs font-bold text-amber-200">User</span>
+                        </div>
+                        <button onclick="logoutClient()" class="p-1.5 rounded-lg bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 text-xs" title="Logout">
+                            <i class="fa-solid fa-power-off"></i>
+                        </button>
+                    </div>
+
+                    <!-- Admin Portal Badge (If active) -->
+                    <div id="adminPortalBadge" class="hidden">
+                        <span class="px-2.5 py-1 rounded-full bg-rose-500/20 border border-rose-500/40 text-rose-300 font-bold text-xs flex items-center gap-1">
+                            <i class="fa-solid fa-shield-halved"></i> Admin Mode
+                        </span>
+                    </div>
+
+                    <!-- Mobile Menu Button -->
+                    <button onclick="toggleMobileMenu()" class="md:hidden p-2 rounded-lg text-slate-400 hover:text-slate-100 hover:bg-slate-800 focus:outline-none">
+                        <i class="fa-solid fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Drawer Menu -->
+        <div id="mobileMenu" class="hidden md:hidden border-t border-slate-800 bg-slate-900 px-4 pt-2 pb-4 space-y-2">
+            <button onclick="navigateTo('home'); toggleMobileMenu()" class="w-full text-left px-3 py-2 rounded-lg hover:bg-slate-800 text-sm font-medium flex items-center gap-2">
+                <i class="fa-solid fa-house text-gold-500"></i> <span data-i18n="nav_home">Home</span>
+            </button>
+            <button onclick="navigateTo('real_service'); toggleMobileMenu()" class="w-full text-left px-3 py-2 rounded-lg hover:bg-slate-800 text-sm font-medium flex items-center gap-2">
+                <i class="fa-solid fa-location-dot text-emerald-400"></i> <span data-i18n="nav_real">Real Service</span>
+            </button>
+            <button onclick="navigateTo('video_service'); toggleMobileMenu()" class="w-full text-left px-3 py-2 rounded-lg hover:bg-slate-800 text-sm font-medium flex items-center gap-2">
+                <i class="fa-solid fa-video text-purple-400"></i> <span data-i18n="nav_video">Video Service</span>
+            </button>
+            <button onclick="navigateTo('live_show'); toggleMobileMenu()" class="w-full text-left px-3 py-2 rounded-lg hover:bg-slate-800 text-sm font-medium flex items-center gap-2">
+                <i class="fa-solid fa-tower-broadcast text-rose-400"></i> <span data-i18n="nav_live">Live Show</span>
+            </button>
+            <button id="mobileHistoryBtn" onclick="navigateTo('history'); toggleMobileMenu()" class="hidden w-full text-left px-3 py-2 rounded-lg hover:bg-slate-800 text-sm font-medium flex items-center gap-2">
+                <i class="fa-solid fa-clock-rotate-left text-blue-400"></i> <span data-i18n="nav_history">Booking History</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN APP CONTAINER -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
+
+        <!-- ALERT / NOTIFICATION BANNER -->
+        <div id="appNotification" class="hidden mb-6 p-4 rounded-xl border flex items-center justify-between shadow-lg">
+            <div class="flex items-center gap-3">
+                <i id="appNotificationIcon" class="fa-solid text-xl"></i>
+                <p id="appNotificationMsg" class="text-sm font-medium"></p>
+            </div>
+            <button onclick="hideNotification()" class="text-slate-400 hover:text-slate-200">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <!-- ================= PAGE 1: HOME ================= -->
+        <section id="pageHome" class="space-y-12">
+            <!-- Hero Banner -->
+            <div class="relative rounded-3xl overflow-hidden glass-card p-8 md:p-12 border border-gold-500/20 text-center md:text-left flex flex-col md:flex-row items-center justify-between gap-8 bg-gradient-to-br from-slate-900 via-slate-900 to-amber-950/30">
+                <div class="space-y-4 max-w-2xl">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold-500/10 border border-gold-500/30 text-gold-400 text-xs font-semibold">
+                        <i class="fa-solid fa-crown text-xs"></i> <span data-i18n="hero_badge">#1 Verified Service Agency in Bangladesh</span>
+                    </div>
+                    <h1 class="text-3xl sm:text-5xl font-black tracking-tight leading-tight text-white">
+                        <span data-i18n="hero_title_1">Premium & Verified</span><br>
+                        <span class="bg-gradient-to-r from-gold-400 via-amber-300 to-amber-500 bg-clip-text text-transparent" data-i18n="hero_title_2">Exclusive Booking Agency</span>
+                    </h1>
+                    <p class="text-slate-300 text-sm sm:text-base leading-relaxed" data-i18n="hero_desc">
+                        Select from high-class real physical service locations across 10+ major cities, HD video call services, and exclusive live streaming passes with instant booking verification.
+                    </p>
+                    <div class="pt-2 flex flex-wrap items-center justify-center md:justify-start gap-4">
+                        <button onclick="navigateTo('real_service')" class="px-6 py-3 rounded-xl bg-gradient-to-r from-gold-500 to-amber-600 hover:from-gold-600 hover:to-amber-700 text-slate-950 font-bold text-sm shadow-xl shadow-gold-500/20 transition transform hover:-translate-y-0.5">
+                            <i class="fa-solid fa-calendar-check mr-2"></i> <span data-i18n="book_real_now">Book Real Service</span>
+                        </button>
+                        <button onclick="navigateTo('video_service')" class="px-6 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold text-sm transition">
+                            <i class="fa-solid fa-play mr-2"></i> <span data-i18n="book_video_now">Video Call Booking</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="w-full md:w-auto flex justify-center">
+                    <div class="relative w-64 h-64 sm:w-72 sm:h-72 rounded-2xl bg-gradient-to-tr from-amber-500/20 to-gold-400/10 border border-gold-500/30 flex items-center justify-center p-6 text-center">
+                        <div class="space-y-3">
+                            <div class="w-20 h-20 mx-auto rounded-full bg-slate-950 border border-gold-500/50 flex items-center justify-center text-gold-400 text-3xl shadow-inner">
+                                <i class="fa-solid fa-gem"></i>
+                            </div>
+                            <h3 class="font-bold text-lg text-amber-200" data-i18n="guarantee_title">100% Confidential</h3>
+                            <p class="text-xs text-slate-400" data-i18n="guarantee_desc">Encrypted records, verified collection codes, and fast support through WhatsApp & Telegram.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Service Categories Grid -->
+            <div>
+                <h2 class="text-2xl font-extrabold text-white mb-6 flex items-center gap-2">
+                    <i class="fa-solid fa-layer-group text-gold-500"></i>
+                    <span data-i18n="our_services">Our Primary Categories</span>
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Real Service Card -->
+                    <div class="glass-card rounded-2xl p-6 border border-slate-800 hover:border-emerald-500/50 transition flex flex-col justify-between space-y-6 group">
+                        <div class="space-y-4">
+                            <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-2xl group-hover:scale-110 transition">
+                                <i class="fa-solid fa-building-user"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-white group-hover:text-emerald-400 transition" data-i18n="card_real_title">Real Physical Service</h3>
+                            <p class="text-slate-400 text-xs sm:text-sm leading-relaxed" data-i18n="card_real_desc">
+                                Select main city, sub-area (Flat/Hotel), check 10-day availability, and choose collection codes with up to 5 verified gallery photos.
+                            </p>
+                        </div>
+                        <button onclick="navigateTo('real_service')" class="w-full py-2.5 rounded-xl bg-slate-800 group-hover:bg-emerald-600 text-slate-200 group-hover:text-white font-semibold text-xs transition flex items-center justify-center gap-2">
+                            <span data-i18n="explore_now">Explore Locations & Dates</span> <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+
+                    <!-- Video Service Card -->
+                    <div class="glass-card rounded-2xl p-6 border border-slate-800 hover:border-purple-500/50 transition flex flex-col justify-between space-y-6 group">
+                        <div class="space-y-4">
+                            <div class="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 text-2xl group-hover:scale-110 transition">
+                                <i class="fa-solid fa-video"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-white group-hover:text-purple-400 transition" data-i18n="card_video_title">Live Video Call Service</h3>
+                            <p class="text-slate-400 text-xs sm:text-sm leading-relaxed" data-i18n="card_video_desc">
+                                Choose from Medium, Premium & New collection models for 10 min, 20 min, 30 min, or 1-hour private online video sessions.
+                            </p>
+                        </div>
+                        <button onclick="navigateTo('video_service')" class="w-full py-2.5 rounded-xl bg-slate-800 group-hover:bg-purple-600 text-slate-200 group-hover:text-white font-semibold text-xs transition flex items-center justify-center gap-2">
+                            <span data-i18n="explore_now">Select Duration & Codes</span> <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+
+                    <!-- Live Show Pass Card -->
+                    <div class="glass-card rounded-2xl p-6 border border-slate-800 hover:border-rose-500/50 transition flex flex-col justify-between space-y-6 group">
+                        <div class="space-y-4">
+                            <div class="w-12 h-12 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400 text-2xl group-hover:scale-110 transition">
+                                <i class="fa-solid fa-tower-broadcast"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-white group-hover:text-rose-400 transition" data-i18n="card_live_title">Live Show Subscription</h3>
+                            <p class="text-slate-400 text-xs sm:text-sm leading-relaxed" data-i18n="card_live_desc">
+                                Get 10-day, 1-month, or 3-month VIP pass access to private live streaming channels with full high-definition support.
+                            </p>
+                        </div>
+                        <button onclick="navigateTo('live_show')" class="w-full py-2.5 rounded-xl bg-slate-800 group-hover:bg-rose-600 text-slate-200 group-hover:text-white font-semibold text-xs transition flex items-center justify-center gap-2">
+                            <span data-i18n="explore_now">View Pass Rates</span> <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= PAGE 2: REAL SERVICE FLOW ================= -->
+        <section id="pageRealService" class="hidden space-y-8">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+                <div>
+                    <h2 class="text-2xl font-black text-white flex items-center gap-2">
+                        <i class="fa-solid fa-location-dot text-emerald-400"></i>
+                        <span data-i18n="real_service_heading">Real Physical Service Selection</span>
+                    </h2>
+                    <p class="text-xs text-slate-400" data-i18n="real_service_sub">Select area, date, collection code & schedule hours</p>
+                </div>
+            </div>
+
+            <!-- Steps Container -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Selection Panel (Left Column) -->
+                <div class="glass-panel p-6 rounded-2xl border border-slate-800 space-y-6">
+                    <!-- Step 1: Main Area Selection -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2" data-i18n="label_main_area">1. Select Main Area / City</label>
+                        <select id="realMainAreaSelect" onchange="onRealMainAreaChange()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:border-gold-500 focus:outline-none">
+                            <!-- Populated dynamically -->
+                        </select>
+                    </div>
+
+                    <!-- Step 2: Sub-Area Selection -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2" data-i18n="label_sub_area">2. Select Sub-Area & Place Type</label>
+                        <select id="realSubAreaSelect" onchange="onRealSubAreaChange()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:border-gold-500 focus:outline-none">
+                            <!-- Populated dynamically -->
+                        </select>
+                    </div>
+
+                    <!-- Step 3: Date Selection (Next 10 Days) -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2" data-i18n="label_select_date">3. Select Date (10-Day Window)</label>
+                        <select id="realDateSelect" onchange="renderRealCollections()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:border-gold-500 focus:outline-none">
+                            <!-- Populated dynamically -->
+                        </select>
+                    </div>
+
+                    <!-- Step 4: Duration / Category Selection -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2" data-i18n="label_duration_tier">4. Duration & Category Tier</label>
+                        <select id="realCategorySelect" onchange="onRealCategoryOrDurationChange()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:border-gold-500 focus:outline-none">
+                            <option value="Medium">Medium Category</option>
+                            <option value="Premium">Premium Category</option>
+                            <option value="New Special Collection">New Special Collection</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2" data-i18n="label_duration">Duration Slot</label>
+                        <select id="realDurationSelect" onchange="onRealCategoryOrDurationChange()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:border-gold-500 focus:outline-none">
+                            <option value="1 Hour">1 Hour</option>
+                            <option value="2 Hours">2 Hours</option>
+                            <option value="3 Hours">3 Hours</option>
+                            <option value="Night">Night</option>
+                        </select>
+                    </div>
+
+                    <!-- Calculated Service Fee Summary Card -->
+                    <div class="p-4 rounded-xl bg-slate-900/80 border border-gold-500/30 space-y-2">
+                        <div class="flex justify-between items-center text-xs text-slate-400">
+                            <span data-i18n="total_service_rate">Total Service Rate:</span>
+                            <span id="realCalculatedTotalRate" class="font-bold text-gold-400 text-sm">2000 BDT</span>
+                        </div>
+                        <div class="flex justify-between items-center text-xs text-slate-400">
+                            <span data-i18n="advance_required">Advance Required:</span>
+                            <span id="realCalculatedAdvance" class="font-bold text-emerald-400 text-sm">1000 BDT</span>
+                        </div>
+                        <div class="flex justify-between items-center text-xs text-slate-400">
+                            <span data-i18n="remaining_hand_cash">Remaining (Hand Cash):</span>
+                            <span id="realCalculatedRemaining" class="font-bold text-slate-200 text-sm">1000 BDT</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Collection Profiles Grid for Selected Location & Date (Right 2 Columns) -->
+                <div class="lg:col-span-2 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-users text-gold-400"></i>
+                            <span data-i18n="available_collections_title">Available Collection Profiles</span>
+                        </h3>
+                        <span id="realAvailableCountBadge" class="px-2.5 py-0.5 rounded-full bg-slate-800 text-xs font-semibold text-gold-400 border border-slate-700">0 Available</span>
+                    </div>
+
+                    <div id="realCollectionsGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- Populated dynamically based on matrix & availability -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= PAGE 3: VIDEO SERVICE FLOW ================= -->
+        <section id="pageVideoService" class="hidden space-y-8">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+                <div>
+                    <h2 class="text-2xl font-black text-white flex items-center gap-2">
+                        <i class="fa-solid fa-video text-purple-400"></i>
+                        <span data-i18n="video_service_heading">Private HD Video Call Service</span>
+                    </h2>
+                    <p class="text-xs text-slate-400" data-i18n="video_service_sub">Select category, time duration package, and pick active collection profiles for today</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Video Controls Left Column -->
+                <div class="glass-panel p-6 rounded-2xl border border-slate-800 space-y-6">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2" data-i18n="video_cat_label">1. Select Collection Category</label>
+                        <select id="videoCategorySelect" onchange="onVideoCategoryOrPackageChange()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:border-gold-500 focus:outline-none">
+                            <option value="Medium">Medium Category (Code: 01 - 100)</option>
+                            <option value="Premium">Premium Category (Code: 101 - 200)</option>
+                            <option value="New Collection">New Collection (Code: 301 - 399)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2" data-i18n="video_duration_label">2. Select Video Package Duration</label>
+                        <select id="videoPackageSelect" onchange="onVideoCategoryOrPackageChange()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:border-gold-500 focus:outline-none">
+                            <option value="10 Mins">10 Mins (Face + Fingering)</option>
+                            <option value="20 Mins">20 Mins (Fingering + Mal Out)</option>
+                            <option value="30 Mins">30 Mins (Fingering + Mal Out + Nude Dance)</option>
+                            <option value="60 Mins">60 Mins / 1 Hour (Fingering + Mal Out + Nude Dance + Bath)</option>
+                        </select>
+                    </div>
+
+                    <!-- Fee Summary Card -->
+                    <div class="p-4 rounded-xl bg-purple-950/30 border border-purple-500/30 space-y-2">
+                        <div class="flex justify-between items-center text-xs text-slate-300">
+                            <span data-i18n="video_service_rate">Video Service Rate:</span>
+                            <span id="videoCalculatedTotalRate" class="font-bold text-purple-300 text-sm">750 BDT</span>
+                        </div>
+                        <div class="flex justify-between items-center text-xs text-slate-400">
+                            <span data-i18n="payment_requirement">Online Payment Required:</span>
+                            <span id="videoCalculatedAdvance" class="font-bold text-emerald-400 text-sm">100% (750 BDT)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Today's Video Profiles Grid -->
+                <div class="lg:col-span-2 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-circle-dot text-emerald-400 animate-pulse"></i>
+                            <span data-i18n="todays_video_profiles">Today's Active Video Profiles</span>
+                        </h3>
+                        <span id="videoAvailableCountBadge" class="px-2.5 py-0.5 rounded-full bg-slate-800 text-xs font-semibold text-purple-300 border border-slate-700">0 Profiles</span>
+                    </div>
+
+                    <div id="videoCollectionsGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- Dynamic list -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= PAGE 4: LIVE SHOW PASS FLOW ================= -->
+        <section id="pageLiveShow" class="hidden space-y-8">
+            <div class="text-center max-w-2xl mx-auto space-y-2">
+                <h2 class="text-3xl font-black text-white flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-tower-broadcast text-rose-400"></i>
+                    <span data-i18n="live_show_heading">VIP Live Show Access Passes</span>
+                </h2>
+                <p class="text-slate-400 text-sm" data-i18n="live_show_sub">Select your pass duration to get instant private room links and access keys.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto pt-4">
+                <!-- 10 Days Pass -->
+                <div class="glass-card rounded-2xl p-6 border border-slate-800 hover:border-rose-500/50 transition flex flex-col justify-between space-y-6 text-center">
+                    <div class="space-y-4">
+                        <span class="px-3 py-1 rounded-full bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs font-bold">STARTER PASS</span>
+                        <h3 class="text-2xl font-bold text-white">10 Days Access</h3>
+                        <div class="text-3xl font-black text-gold-400">550 <span class="text-sm font-medium">BDT</span></div>
+                        <ul class="text-xs text-slate-400 space-y-2 text-left pl-4 list-disc">
+                            <li>100% Online Payment</li>
+                            <li>Daily VIP Live Streams</li>
+                            <li>Instant Confirmation</li>
+                        </ul>
+                    </div>
+                    <button onclick="startLiveShowBooking('10 Days Pass', 550)" class="w-full py-3 rounded-xl bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-500 hover:to-pink-500 text-white font-bold text-sm shadow-lg shadow-rose-600/20 transition">
+                        <span data-i18n="get_pass_btn">Get 10-Day Pass</span>
+                    </button>
+                </div>
+
+                <!-- 1 Month Pass -->
+                <div class="glass-card rounded-2xl p-6 border-2 border-gold-500/50 relative flex flex-col justify-between space-y-6 text-center bg-gradient-to-b from-slate-900 via-slate-900 to-amber-950/20">
+                    <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 px-3 py-0.5 rounded-full bg-gold-500 text-slate-950 font-black text-[10px] uppercase">
+                        MOST POPULAR
+                    </div>
+                    <div class="space-y-4 pt-2">
+                        <span class="px-3 py-1 rounded-full bg-gold-500/10 border border-gold-500/30 text-gold-400 text-xs font-bold">MONTHLY PRO</span>
+                        <h3 class="text-2xl font-bold text-white">1 Month Access</h3>
+                        <div class="text-3xl font-black text-gold-400">1020 <span class="text-sm font-medium">BDT</span></div>
+                        <ul class="text-xs text-slate-300 space-y-2 text-left pl-4 list-disc">
+                            <li>30 Days Unlimited Access</li>
+                            <li>High Definition Streams</li>
+                            <li>Direct Interactive Live Chat</li>
+                        </ul>
+                    </div>
+                    <button onclick="startLiveShowBooking('1 Month Pass', 1020)" class="w-full py-3 rounded-xl bg-gradient-to-r from-gold-500 to-amber-600 hover:from-gold-600 hover:to-amber-700 text-slate-950 font-bold text-sm shadow-lg shadow-gold-500/20 transition">
+                        <span data-i18n="get_pass_btn">Get 1 Month Pass</span>
+                    </button>
+                </div>
+
+                <!-- 3 Month Pass -->
+                <div class="glass-card rounded-2xl p-6 border border-slate-800 hover:border-purple-500/50 transition flex flex-col justify-between space-y-6 text-center">
+                    <div class="space-y-4">
+                        <span class="px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-400 text-xs font-bold">ULTIMATE VIP</span>
+                        <h3 class="text-2xl font-bold text-white">3 Months Access</h3>
+                        <div class="text-3xl font-black text-gold-400">1850 <span class="text-sm font-medium">BDT</span></div>
+                        <ul class="text-xs text-slate-400 space-y-2 text-left pl-4 list-disc">
+                            <li>90 Days Premium Pass</li>
+                            <li>Priority Support & Requests</li>
+                            <li>Best Savings Package</li>
+                        </ul>
+                    </div>
+                    <button onclick="startLiveShowBooking('3 Months Pass', 1850)" class="w-full py-3 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-sm shadow-lg shadow-purple-600/20 transition">
+                        <span data-i18n="get_pass_btn">Get 3 Month Pass</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= PAGE 5: CHECKOUT & PAYMENT MODAL/PAGE ================= -->
+        <section id="pageCheckout" class="hidden max-w-2xl mx-auto space-y-6">
+            <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-gold-500/30 space-y-6">
+                <div class="border-b border-slate-800 pb-4 flex justify-between items-center">
+                    <div>
+                        <h2 class="text-xl font-black text-white" data-i18n="checkout_title">Complete Booking Payment</h2>
+                        <p class="text-xs text-slate-400" data-i18n="checkout_sub">Send the exact advance amount to finalize booking</p>
+                    </div>
+                    <button onclick="navigateTo('home')" class="text-slate-400 hover:text-white text-xs">
+                        <i class="fa-solid fa-xmark text-lg"></i>
+                    </button>
+                </div>
+
+                <!-- Selected Order Overview Card -->
+                <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-2 text-xs">
+                    <div class="flex justify-between text-slate-300">
+                        <span class="font-semibold" data-i18n="service_type">Service:</span>
+                        <span id="checkoutServiceType" class="text-gold-400 font-bold">Real Service</span>
+                    </div>
+                    <div id="checkoutProfileRow" class="flex justify-between text-slate-300">
+                        <span class="font-semibold" data-i18n="collection_code">Collection Profile:</span>
+                        <span id="checkoutCollectionName" class="text-amber-200 font-bold">Profile Code #01</span>
+                    </div>
+                    <div id="checkoutLocationRow" class="flex justify-between text-slate-300">
+                        <span class="font-semibold" data-i18n="location_date">Location & Date:</span>
+                        <span id="checkoutLocationDetails" class="text-slate-200">Dhaka - Uttara (Flat) | 2026-10-27</span>
+                    </div>
+                    <div class="border-t border-slate-800 pt-2 flex justify-between text-sm">
+                        <span class="font-bold text-slate-200" data-i18n="payable_advance">Payable Advance Amount:</span>
+                        <span id="checkoutAdvanceAmount" class="font-extrabold text-emerald-400 text-base">1000 BDT</span>
+                    </div>
+                    <p id="checkoutHandCashNotice" class="text-[11px] text-amber-400/90 italic pt-1">Remaining balance will be paid in hand cash upon service arrival.</p>
+                </div>
+
+                <!-- Admin Configured Payment Numbers List -->
+                <div class="space-y-3">
+                    <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider" data-i18n="payment_methods">Select Payment Account & Copy Number</label>
+
+                    <!-- bKash -->
+                    <div class="p-3.5 rounded-xl bg-pink-950/30 border border-pink-500/30 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-pink-600 flex items-center justify-center font-bold text-white text-xs">bK</div>
+                            <div>
+                                <span class="block text-xs font-bold text-pink-300">bKash Personal</span>
+                                <span id="checkoutBkashNum" class="font-mono text-sm text-white font-bold">01847257668</span>
+                            </div>
+                        </div>
+                        <button onclick="copyToClipboard('checkoutBkashNum')" class="px-3 py-1.5 rounded-lg bg-pink-500/20 hover:bg-pink-500/30 text-pink-300 text-xs font-bold border border-pink-500/40 transition flex items-center gap-1">
+                            <i class="fa-solid fa-copy"></i> <span data-i18n="copy_btn">Copy Number</span>
+                        </button>
+                    </div>
+
+                    <!-- Nagad -->
+                    <div class="p-3.5 rounded-xl bg-orange-950/30 border border-orange-500/30 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-orange-600 flex items-center justify-center font-bold text-white text-xs">NG</div>
+                            <div>
+                                <span class="block text-xs font-bold text-orange-300">Nagad Personal</span>
+                                <span id="checkoutNagadNum" class="font-mono text-sm text-white font-bold">01971355287</span>
+                            </div>
+                        </div>
+                        <button onclick="copyToClipboard('checkoutNagadNum')" class="px-3 py-1.5 rounded-lg bg-orange-500/20 hover:bg-orange-500/30 text-orange-300 text-xs font-bold border border-orange-500/40 transition flex items-center gap-1">
+                            <i class="fa-solid fa-copy"></i> <span data-i18n="copy_btn">Copy Number</span>
+                        </button>
+                    </div>
+
+                    <!-- Rocket -->
+                    <div class="p-3.5 rounded-xl bg-purple-950/30 border border-purple-500/30 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-purple-600 flex items-center justify-center font-bold text-white text-xs">RK</div>
+                            <div>
+                                <span class="block text-xs font-bold text-purple-300">Rocket Personal</span>
+                                <span id="checkoutRocketNum" class="font-mono text-sm text-white font-bold">01788311044</span>
+                            </div>
+                        </div>
+                        <button onclick="copyToClipboard('checkoutRocketNum')" class="px-3 py-1.5 rounded-lg bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 text-xs font-bold border border-purple-500/40 transition flex items-center gap-1">
+                            <i class="fa-solid fa-copy"></i> <span data-i18n="copy_btn">Copy Number</span>
+                        </button>
+                    </div>
+
+                    <!-- Mandatory Notice -->
+                    <div class="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-[11px] text-amber-300 flex items-start gap-2">
+                        <i class="fa-solid fa-triangle-exclamation text-amber-400 mt-0.5"></i>
+                        <span data-i18n="payment_notice">
+                            <strong>WARNING:</strong> Only <b>Send Money</b> or <b>Cash In</b> is accepted on the above numbers. Send the exact calculated amount.
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Payment Proof Submission Form -->
+                <form id="checkoutForm" onsubmit="submitBookingPayment(event)" class="space-y-4 pt-2">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2" data-i18n="select_trans_type">Which method did you use?</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <label class="flex items-center justify-center gap-2 p-3 rounded-xl border border-slate-700 bg-slate-900 cursor-pointer hover:border-gold-500 text-xs font-bold">
+                                <input type="radio" name="payType" value="Send Money" checked onclick="togglePaymentProofType('Send Money')" class="text-gold-500">
+                                <span>Send Money</span>
+                            </label>
+                            <label class="flex items-center justify-center gap-2 p-3 rounded-xl border border-slate-700 bg-slate-900 cursor-pointer hover:border-gold-500 text-xs font-bold">
+                                <input type="radio" name="payType" value="Cash In" onclick="togglePaymentProofType('Cash In')" class="text-gold-500">
+                                <span>Cash In</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Proof Field A: Send Money (Screenshot Upload) -->
+                    <div id="proofSendMoneyBlock">
+                        <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1" data-i18n="upload_receipt">Upload Payment Receipt Screenshot</label>
+                        <input type="file" id="proofScreenshotFile" accept="image/*" class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-gold-400 hover:file:bg-slate-700">
+                    </div>
+
+                    <!-- Proof Field B: Cash In (Last 4 Digits) -->
+                    <div id="proofCashInBlock" class="hidden">
+                        <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1" data-i18n="last_4_digits">Sender Phone / Cash-In Last 4 Digits</label>
+                        <input type="text" id="proofLast4Digits" placeholder="e.g. 5287" maxlength="6" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:border-gold-500 focus:outline-none">
+                    </div>
+
+                    <button type="submit" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-extrabold text-sm shadow-xl shadow-emerald-500/20 transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-paper-plane"></i> <span data-i18n="submit_booking_btn">Submit Payment Proof & Confirm</span>
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- ================= PAGE 6: CLIENT BOOKING HISTORY ================= -->
+        <section id="pageHistory" class="hidden space-y-6">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+                <div>
+                    <h2 class="text-2xl font-black text-white flex items-center gap-2">
+                        <i class="fa-solid fa-clock-rotate-left text-blue-400"></i>
+                        <span data-i18n="my_booking_history">My Booking History</span>
+                    </h2>
+                    <p class="text-xs text-slate-400" data-i18n="history_sub">Track status, payment records, and approval state</p>
+                </div>
+            </div>
+
+            <div id="historyListContainer" class="space-y-4">
+                <!-- Dynamically populated -->
+            </div>
+        </section>
+
+        <!-- ================= PAGE 7: ADMIN DASHBOARD (RESTRICTED) ================= -->
+        <section id="pageAdminDashboard" class="hidden space-y-8">
+            <!-- Admin Top Title Bar -->
+            <div class="glass-panel p-6 rounded-2xl border border-rose-500/30 flex flex-wrap items-center justify-between gap-4 bg-gradient-to-r from-slate-900 via-slate-900 to-rose-950/20">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-2xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400 text-2xl">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-black text-white">Admin Management Portal</h2>
+                        <p class="text-xs text-slate-400">Full system control, profiles, matrix availability, users & payment approvals</p>
+                    </div>
+                </div>
+                <button onclick="logoutAdmin()" class="px-4 py-2 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 font-bold text-xs border border-rose-500/40 transition">
+                    <i class="fa-solid fa-lock mr-1"></i> Exit Admin Portal
+                </button>
+            </div>
+
+            <!-- Admin Tab Controls -->
+            <div class="flex overflow-x-auto gap-2 border-b border-slate-800 pb-2 no-scrollbar">
+                <button onclick="switchAdminTab('users')" id="tabBtnUsers" class="admin-tab-btn px-4 py-2 rounded-xl text-xs font-bold border bg-gold-500 text-slate-950 border-gold-500 transition whitespace-nowrap">
+                    <i class="fa-solid fa-users mr-1"></i> Registered Clients
+                </button>
+                <button onclick="switchAdminTab('bookings')" id="tabBtnBookings" class="admin-tab-btn px-4 py-2 rounded-xl text-xs font-bold border border-slate-800 bg-slate-900 text-slate-400 transition whitespace-nowrap">
+                    <i class="fa-solid fa-receipt mr-1"></i> Booking Approvals
+                </button>
+                <button onclick="switchAdminTab('collections')" id="tabBtnCollections" class="admin-tab-btn px-4 py-2 rounded-xl text-xs font-bold border border-slate-800 bg-slate-900 text-slate-400 transition whitespace-nowrap">
+                    <i class="fa-solid fa-address-card mr-1"></i> Collection Profiles (500 Max)
+                </button>
+                <button onclick="switchAdminTab('matrix')" id="tabBtnMatrix" class="admin-tab-btn px-4 py-2 rounded-xl text-xs font-bold border border-slate-800 bg-slate-900 text-slate-400 transition whitespace-nowrap">
+                    <i class="fa-solid fa-calendar-days mr-1"></i> 10-Day Matrix & Auto Assign
+                </button>
+                <button onclick="switchAdminTab('locations')" id="tabBtnLocations" class="admin-tab-btn px-4 py-2 rounded-xl text-xs font-bold border border-slate-800 bg-slate-900 text-slate-400 transition whitespace-nowrap">
+                    <i class="fa-solid fa-map-location-dot mr-1"></i> Locations & Sub-Areas
+                </button>
+                <button onclick="switchAdminTab('settings')" id="tabBtnSettings" class="admin-tab-btn px-4 py-2 rounded-xl text-xs font-bold border border-slate-800 bg-slate-900 text-slate-400 transition whitespace-nowrap">
+                    <i class="fa-solid fa-gears mr-1"></i> Services & Cashier Accounts
+                </button>
+            </div>
+
+            <!-- TAB 1: USER & CREDENTIAL MANAGEMENT -->
+            <div id="adminTabUsers" class="space-y-4">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-bold text-white">Client Accounts & Passwords</h3>
+                    <span id="adminUserCount" class="text-xs text-slate-400">Total: 0 Clients</span>
+                </div>
+                <div class="glass-panel rounded-2xl border border-slate-800 overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs text-slate-300">
+                            <thead class="bg-slate-900 text-slate-400 font-bold uppercase tracking-wider border-b border-slate-800">
+                                <tr>
+                                    <th class="p-3.5">Client Name</th>
+                                    <th class="p-3.5">Phone Number</th>
+                                    <th class="p-3.5">4-Digit Password</th>
+                                    <th class="p-3.5">Status</th>
+                                    <th class="p-3.5 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminUserTableBody" class="divide-y divide-slate-800">
+                                <!-- Dynamically populated -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: BOOKING APPROVALS CENTER -->
+            <div id="adminTabBookings" class="hidden space-y-4">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-bold text-white">Submitted Payment Proofs & Bookings</h3>
+                    <span id="adminBookingCount" class="text-xs text-slate-400">Total: 0 Bookings</span>
+                </div>
+                <div id="adminBookingsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Dynamically populated -->
+                </div>
+            </div>
+
+            <!-- TAB 3: COLLECTION PROFILE MANAGER -->
+            <div id="adminTabCollections" class="hidden space-y-6">
+                <!-- Add New Collection Form Card -->
+                <div class="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+                    <h3 class="text-base font-bold text-gold-400 flex items-center gap-2">
+                        <i class="fa-solid fa-plus-circle"></i> Add / Create Collection Profile (Max 500)
+                    </h3>
+                    <form onsubmit="saveNewCollectionProfile(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-300 uppercase mb-1">Profile Name</label>
+                            <input type="text" id="colInputName" required placeholder="e.g. Sweety" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-300 uppercase mb-1">Unique Code ID</label>
+                            <input type="text" id="colInputCode" required placeholder="e.g. 05 or 105" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-300 uppercase mb-1">Category</label>
+                            <select id="colInputCategory" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white">
+                                <option value="Medium">Medium Category (Code 01-100)</option>
+                                <option value="Premium">Premium Category (Code 101-200)</option>
+                                <option value="New Special Collection">New Special Collection (Code 301-399)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-300 uppercase mb-1">Upload Photos (Up to 5)</label>
+                            <input type="file" id="colInputPhotos" multiple accept="image/*" class="w-full text-xs text-slate-400 file:mr-2 file:py-1 file:px-2 file:rounded-lg file:border-0 file:text-[11px] file:bg-slate-800 file:text-gold-400">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-300 uppercase mb-1">Upload Video / Media File</label>
+                            <input type="file" id="colInputVideo" accept="video/*" class="w-full text-xs text-slate-400 file:mr-2 file:py-1 file:px-2 file:rounded-lg file:border-0 file:text-[11px] file:bg-slate-800 file:text-purple-400">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-300 uppercase mb-1">Manual / Custom Rate (Optional)</label>
+                            <input type="number" id="colInputCustomRate" placeholder="Leave empty for default rate" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white">
+                        </div>
+                        <div class="sm:col-span-2 flex items-end">
+                            <button type="submit" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-gold-500 to-amber-600 hover:from-gold-600 hover:to-amber-700 text-slate-950 font-bold text-xs shadow-md shadow-gold-500/10 transition">
+                                <i class="fa-solid fa-cloud-arrow-up mr-1"></i> Save Collection Profile
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Collection Profiles Grid List -->
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-bold text-white">All Collection Profiles</h3>
+                        <span id="adminCollectionCount" class="text-xs text-slate-400">0 Profiles</span>
+                    </div>
+                    <div id="adminCollectionsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <!-- Dynamically populated -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 4: 10-DAY MATRIX & AVAILABILITY -->
+            <div id="adminTabMatrix" class="hidden space-y-6">
+                <div class="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex flex-wrap items-center justify-between gap-4">
+                    <div>
+                        <h3 class="text-sm font-bold text-amber-200">Automatic Matrix Auto-Assignment Engine</h3>
+                        <p class="text-xs text-slate-300">Auto-distribute profiles across all sub-areas for 10 days (3 Medium, 3 Premium, 2 Special per sub-area). Guarantees NO SAME CODE IS AVAILABLE IN MULTIPLE LOCATIONS ON THE SAME DAY.</p>
+                    </div>
+                    <button onclick="runAutoMatrixAssignment()" class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs shadow-lg shadow-amber-500/20 transition">
+                        <i class="fa-solid fa-arrows-rotate mr-1"></i> Run Matrix Auto-Sync
+                    </button>
+                </div>
+
+                <div class="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+                    <h3 class="text-base font-bold text-white">Today's Video Service Availability Toggle</h3>
+                    <p class="text-xs text-slate-400">One-click toggle profiles enabled for today's Video Call Service.</p>
+                    <div id="adminTodayVideoToggleGrid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 5: LOCATIONS & SUB-AREAS MANAGER -->
+            <div id="adminTabLocations" class="hidden space-y-6">
+                <!-- Add Main Area Form -->
+                <div class="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+                    <h3 class="text-base font-bold text-emerald-400">Add Main Location / City</h3>
+                    <form onsubmit="addAdminMainArea(event)" class="flex gap-3">
+                        <input type="text" id="addMainAreaInput" required placeholder="e.g. Sylhet" class="flex-grow bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white">
+                        <button type="submit" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs">Add Main Area</button>
+                    </form>
+                </div>
+
+                <!-- Add Sub Area Form -->
+                <div class="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+                    <h3 class="text-base font-bold text-emerald-400">Add Sub-Area with Place Type</h3>
+                    <form onsubmit="addAdminSubArea(event)" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <select id="addSubAreaMainSelect" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                            <!-- Populated -->
+                        </select>
+                        <input type="text" id="addSubAreaNameInput" required placeholder="e.g. Zindabazar" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                        <select id="addSubAreaTypeSelect" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                            <option value="Flat">Flat</option>
+                            <option value="Hotel">Hotel</option>
+                            <option value="Both">Both (Flat & Hotel)</option>
+                        </select>
+                        <button type="submit" class="sm:col-span-3 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs">Add Sub-Area</button>
+                    </form>
+                </div>
+
+                <!-- Existing Hierarchy -->
+                <div id="adminLocationsList" class="space-y-4">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+
+            <!-- TAB 6: SERVICES & CASHIER ACCOUNTS -->
+            <div id="adminTabSettings" class="hidden space-y-6">
+                <!-- Payment Numbers Config -->
+                <div class="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+                    <h3 class="text-base font-bold text-amber-200">Cashier Mobile Payment Numbers</h3>
+                    <form onsubmit="saveCashierNumbers(event)" class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-pink-300 mb-1">bKash Number</label>
+                            <input type="text" id="adminBkashInput" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white font-mono">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-orange-300 mb-1">Nagad Number</label>
+                            <input type="text" id="adminNagadInput" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white font-mono">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-purple-300 mb-1">Rocket Number</label>
+                            <input type="text" id="adminRocketInput" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white font-mono">
+                        </div>
+                        <button type="submit" class="sm:col-span-3 py-2.5 rounded-xl bg-gold-500 hover:bg-gold-600 text-slate-950 font-bold text-xs">
+                            Update Cashier Numbers
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Service Add Options (Max 10) -->
+                <div class="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+                    <h3 class="text-base font-bold text-white">Custom System Services (Max 10)</h3>
+                    <div id="adminServicesList" class="space-y-2">
+                        <!-- Dynamically populated -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FLOATING HELPLINE WIDGETS (BOTTOM CORNERS) -->
+    <div class="fixed bottom-5 right-5 z-50 flex flex-col gap-3">
+        <!-- WhatsApp Floating Button -->
+        <a href="https://wa.me/8801823020470" target="_blank" class="w-12 h-12 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white flex items-center justify-center text-2xl shadow-xl shadow-emerald-500/30 transition transform hover:scale-110" title="WhatsApp Helpline">
+            <i class="fa-brands fa-whatsapp"></i>
+        </a>
+        <!-- Telegram Floating Button -->
+        <a href="https://t.me/crsaaadmin03" target="_blank" class="w-12 h-12 rounded-full bg-sky-500 hover:bg-sky-600 text-white flex items-center justify-center text-xl shadow-xl shadow-sky-500/30 transition transform hover:scale-110" title="Telegram Support">
+            <i class="fa-brands fa-telegram"></i>
+        </a>
+    </div>
+
+    <!-- GALLERY MEDIA SLIDER MODAL -->
+    <div id="galleryModal" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md hidden flex items-center justify-center p-4">
+        <div class="relative max-w-2xl w-full bg-slate-900 rounded-3xl border border-gold-500/30 p-6 space-y-4 overflow-hidden">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h3 id="galleryModalTitle" class="text-lg font-bold text-amber-200">Collection Gallery</h3>
+                <button onclick="closeModal('galleryModal')" class="text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Main Image / Slider Preview -->
+            <div class="relative w-full h-80 rounded-2xl bg-slate-950 border border-slate-800 overflow-hidden flex items-center justify-center">
+                <img id="galleryMainImg" src="" alt="Gallery Image" class="w-full h-full object-cover">
+                <video id="galleryMainVideo" controls class="hidden w-full h-full object-cover"></video>
+
+                <!-- Carousel Controls -->
+                <button onclick="prevGallerySlide()" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-9 h-9 rounded-full bg-slate-900/80 hover:bg-slate-900 text-white border border-slate-700 flex items-center justify-center">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </button>
+                <button onclick="nextGallerySlide()" class="absolute right-3 top-1/2 transform -translate-y-1/2 w-9 h-9 rounded-full bg-slate-900/80 hover:bg-slate-900 text-white border border-slate-700 flex items-center justify-center">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+            </div>
+
+            <!-- Thumbnails Row -->
+            <div id="galleryThumbnailsRow" class="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
+                <!-- Populated dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- CLIENT LOGIN MODAL -->
+    <div id="loginModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="glass-panel max-w-md w-full rounded-3xl p-6 sm:p-8 border border-gold-500/30 space-y-6">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                <h3 class="text-xl font-bold text-white" data-i18n="client_login_title">Client Portal Login</h3>
+                <button onclick="closeModal('loginModal')" class="text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <form onsubmit="handleClientLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 uppercase mb-1" data-i18n="phone_number">Phone Number</label>
+                    <input type="text" id="loginPhone" required placeholder="018XXXXXXXX" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:border-gold-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 uppercase mb-1" data-i18n="4digit_pin">4-Digit Password</label>
+                    <input type="password" id="loginPassword" required maxlength="4" placeholder="****" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:border-gold-500 focus:outline-none font-mono">
+                </div>
+                <button type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-gold-500 to-amber-600 hover:from-gold-600 hover:to-amber-700 text-slate-950 font-bold text-sm shadow-lg shadow-gold-500/20 transition">
+                    <span data-i18n="login_btn">Login</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- CLIENT REGISTER MODAL -->
+    <div id="registerModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="glass-panel max-w-md w-full rounded-3xl p-6 sm:p-8 border border-gold-500/30 space-y-6">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                <h3 class="text-xl font-bold text-white" data-i18n="register_title">New Client Registration</h3>
+                <button onclick="closeModal('registerModal')" class="text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <form onsubmit="handleClientRegister(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 uppercase mb-1" data-i18n="full_name">Full Name</label>
+                    <input type="text" id="regName" required placeholder="Your Name" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:border-gold-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 uppercase mb-1" data-i18n="phone_number">Phone Number</label>
+                    <input type="text" id="regPhone" required placeholder="017XXXXXXXX" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:border-gold-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 uppercase mb-1" data-i18n="4digit_pin">4-Digit Password</label>
+                    <input type="password" id="regPassword" required maxlength="4" placeholder="****" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:border-gold-500 focus:outline-none font-mono">
+                </div>
+                <button type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold text-sm shadow-lg shadow-emerald-500/20 transition">
+                    <span data-i18n="register_btn">Register Account</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- HIDDEN ADMIN LOGIN MODAL -->
+    <div id="adminLoginModal" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md hidden flex items-center justify-center p-4">
+        <div class="glass-panel max-w-md w-full rounded-3xl p-6 sm:p-8 border border-rose-500/40 space-y-6">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                <h3 class="text-xl font-bold text-rose-400 flex items-center gap-2">
+                    <i class="fa-solid fa-lock"></i> Restricted Admin Access
+                </h3>
+                <button onclick="closeModal('adminLoginModal')" class="text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <form onsubmit="handleAdminLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 uppercase mb-1">Admin Contact / Phone</label>
+                    <input type="text" id="adminAuthPhone" required placeholder="Enter Contact" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:border-rose-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 uppercase mb-1">Admin Password</label>
+                    <input type="password" id="adminAuthPass" required placeholder="Enter Password" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:border-rose-500 focus:outline-none">
+                </div>
+                <button type="submit" class="w-full py-3 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-sm shadow-lg shadow-rose-600/20 transition">
+                    Unlock Admin Panel
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- FOOTER WITH HIDDEN SUBTLE ADMIN TRIGGER LINK -->
+    <footer class="border-t border-slate-800 bg-slate-950 py-8 mt-12 text-center text-xs text-slate-500">
+        <div class="max-w-7xl mx-auto px-4 space-y-3">
+            <p>© 2026 TRCP AGENCY. All Rights Reserved. Private & Confidential Booking Network.</p>
+            <div class="flex items-center justify-center gap-4">
+                <span>WhatsApp: 01823020470</span>
+                <span>•</span>
+                <span>Telegram: @crsaaadmin03</span>
+                <span>•</span>
+                <!-- Subtle Admin Trigger Link (No credentials shown) -->
+                <button onclick="openModal('adminLoginModal')" class="text-slate-600 hover:text-slate-400 underline decoration-slate-700 text-[11px]" data-i18n="admin_access_link">
+                    Portal Management Access
+                </button>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT APPLICATION CORE LOGIC -->
+    <script>
+        /* ================= STATE MANAGEMENT & PRESEEDED DATA ================= */
+
+        // Language State ('en' or 'bn')
+        let currentLang = 'bn';
+
+        // Admin Credentials (HIDDEN IN UI)
+        const ADMIN_CREDENTIALS = { phone: '01971355287', pass: '181296' };
+
+        // Rates & Pricing Matrices
+        const REAL_RATES = {
+            'Medium': { '1 Hour': 2000, '2 Hours': 3200, '3 Hours': 4500, 'Night': 6000 },
+            'Premium': { '1 Hour': 3000, '2 Hours': 4200, '3 Hours': 5500, 'Night': 8000 },
+            'New Special Collection': { '1 Hour': 2500, '2 Hours': 3800, '3 Hours': 5000, 'Night': 7000 }
+        };
+
+        const VIDEO_RATES = {
+            'Medium': { '10 Mins': 750, '20 Mins': 1020, '30 Mins': 1530, '60 Mins': 2040 },
+            'Premium': { '10 Mins': 915, '20 Mins': 1230, '30 Mins': 1750, '60 Mins': 2550 },
+            'New Collection': { '10 Mins': 850, '20 Mins': 1125, '30 Mins': 1630, '60 Mins': 2250 }
+        };
+
+        // Translations Dictionary
+        const I18N = {
+            en: {
+                tagline: "Exclusive Service Network",
+                nav_home: "Home",
+                nav_real: "Real Service",
+                nav_video: "Video Service",
+                nav_live: "Live Show",
+                nav_history: "Booking History",
+                login_btn: "Login",
+                register_btn: "Register",
+                hero_badge: "#1 Verified Service Agency in Bangladesh",
+                hero_title_1: "Premium & Verified",
+                hero_title_2: "Exclusive Booking Agency",
+                hero_desc: "Select from high-class real physical service locations across 10+ major cities, HD video call services, and exclusive live streaming passes with instant booking verification.",
+                book_real_now: "Book Real Service",
+                book_video_now: "Video Call Booking",
+                guarantee_title: "100% Confidential",
+                guarantee_desc: "Encrypted records, verified collection codes, and fast support through WhatsApp & Telegram.",
+                our_services: "Our Primary Categories",
+                card_real_title: "Real Physical Service",
+                card_real_desc: "Select main city, sub-area (Flat/Hotel), check 10-day availability, and choose collection codes with up to 5 verified gallery photos.",
+                card_video_title: "Live Video Call Service",
+                card_video_desc: "Choose from Medium, Premium & New collection models for 10 min, 20 min, 30 min, or 1-hour private online video sessions.",
+                card_live_title: "Live Show Subscription",
+                card_live_desc: "Get 10-day, 1-month, or 3-month VIP pass access to private live streaming channels with full high-definition support.",
+                explore_now: "Explore Now",
+                real_service_heading: "Real Physical Service Selection",
+                real_service_sub: "Select area, date, collection code & schedule hours",
+                label_main_area: "1. Select Main Area / City",
+                label_sub_area: "2. Select Sub-Area & Place Type",
+                label_select_date: "3. Select Date (10-Day Window)",
+                label_duration_tier: "4. Duration & Category Tier",
+                label_duration: "Duration Slot",
+                total_service_rate: "Total Service Rate:",
+                advance_required: "Advance Required:",
+                remaining_hand_cash: "Remaining (Hand Cash):",
+                available_collections_title: "Available Collection Profiles",
+                video_service_heading: "Private HD Video Call Service",
+                video_service_sub: "Select category, time duration package, and pick active collection profiles for today",
+                video_cat_label: "1. Select Collection Category",
+                video_duration_label: "2. Select Video Package Duration",
+                video_service_rate: "Video Service Rate:",
+                payment_requirement: "Online Payment Required:",
+                todays_video_profiles: "Today's Active Video Profiles",
+                live_show_heading: "VIP Live Show Access Passes",
+                live_show_sub: "Select your pass duration to get instant private room links and access keys.",
+                get_pass_btn: "Get Pass Access",
+                checkout_title: "Complete Booking Payment",
+                checkout_sub: "Send the exact advance amount to finalize booking",
+                service_type: "Service:",
+                collection_code: "Collection Profile:",
+                location_date: "Location & Date:",
+                payable_advance: "Payable Advance Amount:",
+                payment_methods: "Select Payment Account & Copy Number",
+                copy_btn: "Copy Number",
+                payment_notice: "WARNING: Only Send Money or Cash In is accepted on the above numbers. Send the exact calculated amount.",
+                select_trans_type: "Which method did you use?",
+                upload_receipt: "Upload Payment Receipt Screenshot",
+                last_4_digits: "Sender Phone / Cash-In Last 4 Digits",
+                submit_booking_btn: "Submit Payment Proof & Confirm",
+                my_booking_history: "My Booking History",
+                history_sub: "Track status, payment records, and approval state",
+                client_login_title: "Client Portal Login",
+                register_title: "New Client Registration",
+                phone_number: "Phone Number",
+                '4digit_pin': "4-Digit Password",
+                full_name: "Full Name",
+                admin_access_link: "Portal Management Access"
+            },
+            bn: {
+                tagline: "এক্সক্লুসিভ সার্ভিস নেটওয়ার্ক",
+                nav_home: "হোম",
+                nav_real: "রিয়েল সার্ভিস",
+                nav_video: "ভিডিও সার্ভিস",
+                nav_live: "লাইভ শো",
+                nav_history: "বুকিং হিস্ট্রি",
+                login_btn: "লগইন",
+                register_btn: "রেজিস্টার",
+                hero_badge: "#১ ভেরিফাইড সার্ভিস এজেন্সী বাংলাদেশ",
+                hero_title_1: "প্রিমিয়াম ও ভেরিফাইড",
+                hero_title_2: "এক্সক্লুসিভ বুকিং এজেন্সী",
+                hero_desc: "বাংলাদেশের ১০+ প্রধান শহরের রিয়েল সার্ভিস লোকেশন, এইচডি ভিডিও কল এবং লাইভ শো সার্ভিস সহজে বুকিং করুন।",
+                book_real_now: "রিয়েল সার্ভিস বুক করুন",
+                book_video_now: "ভিডিও কল সার্ভিস",
+                guarantee_title: "১০০% গোপনীয়তা রক্ষিত",
+                guarantee_desc: "সম্পূর্ণ এনক্রিপ্টেড রেকর্ড এবং হোয়াটসঅ্যাপ/টেলিগ্রাম হেল্পলাইন সাপোর্ট।",
+                our_services: "আমাদের প্রধান সার্ভিসসমূহ",
+                card_real_title: "রিয়েল ফিজিক্যাল সার্ভিস",
+                card_real_desc: "এলাকা ও সাব-এরিয়া সিলেক্ট করে পরবর্তী ১০ দিনের মধ্যে কালেকশন কোড ও ছবি দেখে বুকিং কনফার্ম করুন।",
+                card_video_title: "লাইভ ভিডিও কল সার্ভিস",
+                card_video_desc: "মিডিয়াম, প্রিমিয়াম ও নিউ কালেকশনের সাথে ১০ মিনিট থেকে ১ ঘণ্টার প্রাইভেট ভিডিও সার্ভিস।",
+                card_live_title: "লাইভ শো সাবস্ক্রিপশন",
+                card_live_desc: "১০ দিন, ১ মাস বা ৩ মাসের মেয়াদে প্রাইভেট ভিআইপি লাইভ শো চ্যানেল এক্সেস।",
+                explore_now: "বিস্তারিত দেখুন",
+                real_service_heading: "রিয়েল সার্ভিস সিলেকশন",
+                real_service_sub: "এরিয়া, তারিখ, কালেকশন কোড এবং সময় সিলেক্ট করুন",
+                label_main_area: "১. প্রধান এরিয়া / শহর সিলেক্ট করুন",
+                label_sub_area: "২. সাব-এরিয়া ও টাইপ সিলেক্ট করুন",
+                label_select_date: "৩. তারিখ সিলেক্ট করুন (১০ দিনের উইন্ডো)",
+                label_duration_tier: "৪. ডিউরেশন ক্যাটাগরি",
+                label_duration: "সার্ভিস সময়",
+                total_service_rate: "মোট সার্ভিস রেট:",
+                advance_required: "অগ্রিম পেমেন্ট:",
+                remaining_hand_cash: "অবশিষ্ট (ক্যাশ ইন হ্যান্ড):",
+                available_collections_title: "এভেইলএবল কালেকশন প্রোফাইল",
+                video_service_heading: "প্রাইভেট এইচডি ভিডিও কল সার্ভিস",
+                video_service_sub: "ক্যাটাগরি এবং প্যাকেজ সিলেক্ট করে আজকের এভেইলএবল কালেকশন পছন্দ করুন",
+                video_cat_label: "১. কালেকশন ক্যাটাগরি সিলেক্ট করুন",
+                video_duration_label: "২. ভিডিও সময় ও প্যাকেজ",
+                video_service_rate: "ভিডিও সার্ভিস রেট:",
+                payment_requirement: "অনলাইন পেমেন্ট:",
+                todays_video_profiles: "আজকের ভিডিও প্রোফাইলসমূহ",
+                live_show_heading: "ভিআইপি লাইভ শো পাস",
+                live_show_sub: "আপনার পছন্দমতো মেয়াদের পাস সিলেক্ট করে বুকিং কনফার্ম করুন।",
+                get_pass_btn: "পাস নিন",
+                checkout_title: "বুকিং পেমেন্ট সম্পন্ন করুন",
+                checkout_sub: "সঠিক অগ্রিম টাকা পাঠিয়ে ট্রানজেকশন তথ্য সাবমিট করুন",
+                service_type: "সার্ভিস টাইপ:",
+                collection_code: "কালেকশন প্রোফাইল:",
+                location_date: "লোকেশন ও তারিখ:",
+                payable_advance: "প্রদেয় অগ্রিম টাকা:",
+                payment_methods: "পেমেন্ট নাম্বার সিলেক্ট করে কপি করুন",
+                copy_btn: "কপি করুন",
+                payment_notice: "সতর্কতা: উক্ত নাম্বারে শুধুমাত্র সেন্ড মানি অথবা ক্যাশ ইন গ্রহন করা হয়। নিখুঁত পরিমাণ সেন্ড করুন।",
+                select_trans_type: "কোন পদ্ধতিতে পেমেন্ট করেছেন?",
+                upload_receipt: "পেমেন্ট স্ক্রিনশট আপলোড করুন",
+                last_4_digits: "প্রেরক ফোন নাম্বার / ক্যাশ ইন লাস্ট ৪ ডিজিট",
+                submit_booking_btn: "পেমেন্ট প্রুফ সাবমিট ও কনফার্ম করুন",
+                my_booking_history: "আমার বুকিং হিস্ট্রি",
+                history_sub: "বুকিং স্ট্যাটাস ও পেমেন্ট রেকর্ড দেখুন",
+                client_login_title: "ক্লায়েন্ট লগইন",
+                register_title: "নতুন ক্লায়েন্ট রেজিস্ট্রেশন",
+                phone_number: "ফোন নাম্বার",
+                '4digit_pin': "৪-ডিজিট পাসওয়ার্ড",
+                full_name: "পূর্ণ নাম",
+                admin_access_link: "পোর্টাল ম্যানেজমেন্ট এক্সেস"
+            }
+        };
+
+        // Application State Containers in LocalStorage
+        let appState = {
+            clients: [],
+            currentUser: null,
+            isAdmin: false,
+            cashierNumbers: {
+                bkash: '01847257668',
+                nagad: '01971355287',
+                rocket: '01788311044'
+            },
+            locations: [],
+            collections: [],
+            bookings: [],
+            services: [
+                { id: 1, name: "Real Physical Service", active: true },
+                { id: 2, name: "Private Video Call Service", active: true },
+                { id: 3, name: "Live Show Subscription Pass", active: true }
+            ],
+            // Matrix: { 'YYYY-MM-DD_SubAreaName': [colCode1, colCode2, ...] }
+            realMatrix: {},
+            // Video Today Active Codes: [colCode1, colCode2]
+            todayVideoCodes: []
+        };
+
+        // Current Active Gallery State
+        let activeGallery = { photos: [], video: null, index: 0 };
+
+        // Pending Checkout Draft
+        let pendingCheckout = null;
+
+        /* ================= INITIALIZATION & SEEDED DATA ================= */
+
+        window.onload = function() {
+            loadStateFromStorage();
+            if (appState.locations.length === 0) seedInitialData();
+            runAutoMatrixAssignment(); // Guarantees valid collision-free matrix
+            updateUI();
+            navigateTo('home');
+        };
+
+        function loadStateFromStorage() {
+            const saved = localStorage.getItem('TRCP_APP_STATE');
+            if (saved) {
+                try { appState = JSON.parse(saved); } catch(e) { console.error(e); }
+            }
+        }
+
+        function saveStateToStorage() {
+            localStorage.setItem('TRCP_APP_STATE', JSON.stringify(appState));
+        }
+
+        function seedInitialData() {
+            // Seed Locations Hierarchy
+            appState.locations = [
+                {
+                    name: "ঢাকা",
+                    subAreas: [
+                        { name: "উত্তরা (সেক্টর ৩)", type: "Flat" },
+                        { name: "উত্তরা (সেক্টর ৭)", type: "Hotel" },
+                        { name: "উত্তরা (সেক্টর ১২)", type: "Hotel" },
+                        { name: "মিরপুর (সাড়ে ১১ ইস্টার্ন হাউজিং ডি ব্লক)", type: "Flat" },
+                        { name: "মিরপুর (১২ বাস স্ট্যান্ড)", type: "Hotel" },
+                        { name: "ফার্মগেট (পান্থপথ)", type: "Flat" },
+                        { name: "ফার্মগেট (তেজতুরি বাজার)", type: "Hotel" },
+                        { name: "ধানমণ্ডি (১০R/A)", type: "Flat" },
+                        { name: "গুলশান (শাহজাদপুর)", type: "Hotel" },
+                        { name: "বনানী (সি ব্লক)", type: "Flat" }
+                    ]
+                },
+                {
+                    name: "চট্টগ্রাম",
+                    subAreas: [
+                        { name: "ফেনী (মহিপাল)", type: "Hotel" },
+                        { name: "সীতাকুণ্ড (কলেজ রোড)", type: "Both" },
+                        { name: "হাটহাজারী", type: "Both" },
+                        { name: "কোতোয়ালি", type: "Hotel" },
+                        { name: "জি ই সি", type: "Flat" },
+                        { name: "আগ্রাবাদ", type: "Both" }
+                    ]
+                },
+                { name: "কক্সবাজার", subAreas: [{ name: "মেরিন ড্রাইভ / হোটেল রোড", type: "Hotel" }] },
+                {
+                    name: "রাজশাহী",
+                    subAreas: [
+                        { name: "বিন্দুরমোড়", type: "Flat" },
+                        { name: "সাহেব বাজার", type: "Both" }
+                    ]
+                },
+                { name: "খুলনা", subAreas: [{ name: "শীব বাড়ি", type: "Both" }] },
+                { name: "বরিশাল", subAreas: [{ name: "সদর রোড", type: "Hotel" }] },
+                { name: "কুমিল্লা", subAreas: [{ name: "কান্দিরপাড়", type: "Flat" }] },
+                {
+                    name: "হবিগঞ্জ",
+                    subAreas: [
+                        { name: "নতুন ব্রিজ", type: "Hotel" },
+                        { name: "শায়েস্তানগর", type: "Flat" },
+                        { name: "কালীবাড়ি", type: "Hotel" },
+                        { name: "বেবি স্ট্যান্ড", type: "Flat" }
+                    ]
+                },
+                {
+                    name: "সিলেট",
+                    subAreas: [
+                        { name: "বন্দর বাজার", type: "Hotel" },
+                        { name: "জিন্দাবাজার", type: "Flat" },
+                        { name: "মদিনা মার্কেট", type: "Both" },
+                        { name: "দরগা গেইট", type: "Hotel" },
+                        { name: "আম্বরখানা", type: "Flat" }
+                    ]
+                }
+            ];
+
+            // Seed Sample Collection Profiles across Categories
+            appState.collections = [];
+            
+            // 8 Medium Category (Code 01-100)
+            for(let i=1; i<=10; i++) {
+                const codeStr = String(i).padStart(2, '0');
+                appState.collections.push({
+                    id: 'col_' + codeStr,
+                    name: 'Collection ' + codeStr,
+                    code: codeStr,
+                    category: 'Medium',
+                    photos: [
+                        `https://placehold.co/600x800/1e293b/facc15?text=Medium+Code+${codeStr}+Photo+1`,
+                        `https://placehold.co/600x800/0f172a/eab308?text=Medium+Code+${codeStr}+Photo+2`
+                    ],
+                    video: null,
+                    customRate: null,
+                    available: true
+                });
+            }
+
+            // 8 Premium Category (Code 101-200)
+            for(let i=101; i<=110; i++) {
+                const codeStr = String(i);
+                appState.collections.push({
+                    id: 'col_' + codeStr,
+                    name: 'Premium ' + codeStr,
+                    code: codeStr,
+                    category: 'Premium',
+                    photos: [
+                        `https://placehold.co/600x800/1e293b/10b981?text=Premium+Code+${codeStr}+Photo+1`,
+                        `https://placehold.co/600x800/0f172a/059669?text=Premium+Code+${codeStr}+Photo+2`
+                    ],
+                    video: null,
+                    customRate: null,
+                    available: true
+                });
+            }
+
+            // 6 Special Category (Code 301-399)
+            for(let i=301; i<=308; i++) {
+                const codeStr = String(i);
+                appState.collections.push({
+                    id: 'col_' + codeStr,
+                    name: 'Special ' + codeStr,
+                    code: codeStr,
+                    category: 'New Special Collection',
+                    photos: [
+                        `https://placehold.co/600x800/1e293b/ec4899?text=Special+Code+${codeStr}+Photo+1`
+                    ],
+                    video: null,
+                    customRate: null,
+                    available: true
+                });
+            }
+
+            // Today's Video Service active default
+            appState.todayVideoCodes = ['01', '02', '101', '102', '301'];
+
+            saveStateToStorage();
+        }
+
+        /* ================= STRICT AUTOMATIC MATRIX SCHEDULER ================= */
+        // Guarantees: 3 Medium, 3 Premium, 2 Special per sub-area per date.
+        // ABSOLUTELY ENFORCES: Same Code ID is NEVER assigned to multiple locations on the same date.
+        function runAutoMatrixAssignment() {
+            const next10Days = getNext10Days();
+            const mediumCols = appState.collections.filter(c => c.category === 'Medium' && c.available);
+            const premiumCols = appState.collections.filter(c => c.category === 'Premium' && c.available);
+            const specialCols = appState.collections.filter(c => (c.category === 'New Special Collection' || c.category === 'New Collection') && c.available);
+
+            // Collect all sub-area names
+            let allSubAreas = [];
+            appState.locations.forEach(loc => {
+                loc.subAreas.forEach(sub => allSubAreas.push(sub.name));
+            });
+
+            appState.realMatrix = {};
+
+            next10Days.forEach((dateStr, dayIdx) => {
+                // Track assigned codes for this specific date
+                let assignedCodesOnDate = new Set();
+
+                allSubAreas.forEach((subName, subIdx) => {
+                    const matrixKey = `${dateStr}_${subName}`;
+                    let subAssigned = [];
+
+                    // Assign up to 3 Medium
+                    let mCount = 0;
+                    for(let i=0; i<mediumCols.length && mCount<3; i++) {
+                        let c = mediumCols[(i + subIdx + dayIdx) % mediumCols.length];
+                        if(!assignedCodesOnDate.has(c.code)) {
+                            assignedCodesOnDate.add(c.code);
+                            subAssigned.push(c.code);
+                            mCount++;
+                        }
+                    }
+
+                    // Assign up to 3 Premium
+                    let pCount = 0;
+                    for(let i=0; i<premiumCols.length && pCount<3; i++) {
+                        let c = premiumCols[(i + subIdx + dayIdx) % premiumCols.length];
+                        if(!assignedCodesOnDate.has(c.code)) {
+                            assignedCodesOnDate.add(c.code);
+                            subAssigned.push(c.code);
+                            pCount++;
+                        }
+                    }
+
+                    // Assign up to 2 Special
+                    let sCount = 0;
+                    for(let i=0; i<specialCols.length && sCount<2; i++) {
+                        let c = specialCols[(i + subIdx + dayIdx) % specialCols.length];
+                        if(!assignedCodesOnDate.has(c.code)) {
+                            assignedCodesOnDate.add(c.code);
+                            subAssigned.push(c.code);
+                            sCount++;
+                        }
+                    }
+
+                    appState.realMatrix[matrixKey] = subAssigned;
+                });
+            });
+
+            saveStateToStorage();
+        }
+
+        function getNext10Days() {
+            let dates = [];
+            let today = new Date();
+            for(let i=0; i<10; i++) {
+                let d = new Date(today);
+                d.setDate(today.getDate() + i);
+                dates.push(d.toISOString().split('T')[0]);
+            }
+            return dates;
+        }
+
+        /* ================= NAVIGATION & LANGUAGE CONTROLLER ================= */
+
+        function navigateTo(pageId) {
+            // Hide all pages
+            const pages = ['pageHome', 'pageRealService', 'pageVideoService', 'pageLiveShow', 'pageCheckout', 'pageHistory', 'pageAdminDashboard'];
+            pages.forEach(p => {
+                const el = document.getElementById(p);
+                if (el) el.classList.add('hidden');
+            });
+
+            if (pageId === 'home') document.getElementById('pageHome').classList.remove('hidden');
+            if (pageId === 'real_service') {
+                document.getElementById('pageRealService').classList.remove('hidden');
+                populateRealServiceDropdowns();
+            }
+            if (pageId === 'video_service') {
+                document.getElementById('pageVideoService').classList.remove('hidden');
+                renderVideoCollections();
+            }
+            if (pageId === 'live_show') document.getElementById('pageLiveShow').classList.remove('hidden');
+            if (pageId === 'history') {
+                if (!appState.currentUser) {
+                    openModal('loginModal');
+                    showNotification('Please login to view booking history', 'info');
+                    document.getElementById('pageHome').classList.remove('hidden');
+                    return;
+                }
+                document.getElementById('pageHistory').classList.remove('hidden');
+                renderClientBookingHistory();
+            }
+            if (pageId === 'checkout') document.getElementById('pageCheckout').classList.remove('hidden');
+            if (pageId === 'admin') {
+                if (!appState.isAdmin) {
+                    openModal('adminLoginModal');
+                    document.getElementById('pageHome').classList.remove('hidden');
+                    return;
+                }
+                document.getElementById('pageAdminDashboard').classList.remove('hidden');
+                renderAdminDashboard();
+            }
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'en' ? 'bn' : 'en';
+            document.getElementById('currentLangLabel').innerText = currentLang === 'en' ? 'English' : 'বাংলা';
+            updateUI();
+        }
+
+        function updateUI() {
+            // Translate all data-i18n elements
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (I18N[currentLang] && I18N[currentLang][key]) {
+                    el.innerText = I18N[currentLang][key];
+                }
+            });
+
+            // Auth Elements
+            const authBtns = document.getElementById('clientAuthButtons');
+            const userBadge = document.getElementById('loggedInUserBadge');
+            const historyBtn = document.getElementById('historyNavBtn');
+            const mobHistoryBtn = document.getElementById('mobileHistoryBtn');
+            const adminBadge = document.getElementById('adminPortalBadge');
+
+            if (appState.currentUser) {
+                authBtns.classList.add('hidden');
+                userBadge.classList.remove('hidden');
+                document.getElementById('loggedInUserName').innerText = appState.currentUser.name;
+                historyBtn.classList.remove('hidden');
+                mobHistoryBtn.classList.remove('hidden');
+            } else {
+                authBtns.classList.remove('hidden');
+                userBadge.classList.add('hidden');
+                historyBtn.classList.add('hidden');
+                mobHistoryBtn.classList.add('hidden');
+            }
+
+            if (appState.isAdmin) {
+                adminBadge.classList.remove('hidden');
+            } else {
+                adminBadge.classList.add('hidden');
+            }
+
+            // Cashier Numbers Sync
+            document.getElementById('checkoutBkashNum').innerText = appState.cashierNumbers.bkash;
+            document.getElementById('checkoutNagadNum').innerText = appState.cashierNumbers.nagad;
+            document.getElementById('checkoutRocketNum').innerText = appState.cashierNumbers.rocket;
+        }
+
+        function showNotification(msg, type = 'info') {
+            const banner = document.getElementById('appNotification');
+            const icon = document.getElementById('appNotificationIcon');
+            const txt = document.getElementById('appNotificationMsg');
+
+            banner.className = `mb-6 p-4 rounded-xl border flex items-center justify-between shadow-lg ${
+                type === 'error' ? 'bg-rose-950/80 border-rose-500/50 text-rose-200' :
+                type === 'success' ? 'bg-emerald-950/80 border-emerald-500/50 text-emerald-200' :
+                'bg-slate-900 border-gold-500/50 text-gold-300'
+            }`;
+
+            icon.className = type === 'error' ? 'fa-solid fa-circle-exclamation text-rose-400' :
+                           type === 'success' ? 'fa-solid fa-circle-check text-emerald-400' :
+                           'fa-solid fa-circle-info text-gold-400';
+
+            txt.innerText = msg;
+            banner.classList.remove('hidden');
+            setTimeout(() => { banner.classList.add('hidden'); }, 6000);
+        }
+
+        function hideNotification() {
+            document.getElementById('appNotification').classList.add('hidden');
+        }
+
+        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+        function toggleMobileMenu() { document.getElementById('mobileMenu').classList.toggle('hidden'); }
+
+        function copyToClipboard(elementId) {
+            const text = document.getElementById(elementId).innerText;
+            const temp = document.createElement("input");
+            document.body.appendChild(temp);
+            temp.value = text;
+            temp.select();
+            document.execCommand("copy");
+            document.body.removeChild(temp);
+            showNotification(currentLang === 'bn' ? 'নাম্বার কপি করা হয়েছে!' : 'Number copied to clipboard!', 'success');
+        }
+
+        /* ================= AUTHENTICATION HANDLERS ================= */
+
+        function handleClientRegister(e) {
+            e.preventDefault();
+            const name = document.getElementById('regName').value.trim();
+            const phone = document.getElementById('regPhone').value.trim();
+            const pass = document.getElementById('regPassword').value.trim();
+
+            if (!name || !phone || pass.length !== 4) {
+                showNotification(currentLang === 'bn' ? 'দয়া করে সঠিক তথ্য এবং ৪ ডিজিট পিন দিন।' : 'Please enter valid details and 4-digit password.', 'error');
+                return;
+            }
+
+            if (appState.clients.some(c => c.phone === phone)) {
+                showNotification(currentLang === 'bn' ? 'এই ফোন নাম্বারে ইতিমধ্যে একাউন্ট আছে।' : 'Account already exists with this phone number.', 'error');
+                return;
+            }
+
+            const newClient = { id: 'usr_' + Date.now(), name, phone, password: pass, banned: false };
+            appState.clients.push(newClient);
+            appState.currentUser = newClient;
+            saveStateToStorage();
+            closeModal('registerModal');
+            updateUI();
+            showNotification(currentLang === 'bn' ? 'রেজিস্ট্রেশন সফল হয়েছে!' : 'Registration successful!', 'success');
+        }
+
+        function handleClientLogin(e) {
+            e.preventDefault();
+            const phone = document.getElementById('loginPhone').value.trim();
+            const pass = document.getElementById('loginPassword').value.trim();
+
+            const client = appState.clients.find(c => c.phone === phone && c.password === pass);
+            if (!client) {
+                showNotification(currentLang === 'bn' ? 'ভুল ফোন নাম্বার অথবা পাসওয়ার্ড।' : 'Invalid phone number or password.', 'error');
+                return;
+            }
+
+            if (client.banned) {
+                showNotification(currentLang === 'bn' ? 'আপনার একাউন্টটি ব্যান করা হয়েছে। সাপোর্ট এ যোগাযোগ করুন।' : 'Your account is banned. Contact support.', 'error');
+                return;
+            }
+
+            appState.currentUser = client;
+            saveStateToStorage();
+            closeModal('loginModal');
+            updateUI();
+            showNotification(currentLang === 'bn' ? 'সফলভাবে লগইন করা হয়েছে!' : 'Logged in successfully!', 'success');
+        }
+
+        function logoutClient() {
+            appState.currentUser = null;
+            saveStateToStorage();
+            updateUI();
+            navigateTo('home');
+        }
+
+        function handleAdminLogin(e) {
+            e.preventDefault();
+            const phone = document.getElementById('adminAuthPhone').value.trim();
+            const pass = document.getElementById('adminAuthPass').value.trim();
+
+            if (phone === ADMIN_CREDENTIALS.phone && pass === ADMIN_CREDENTIALS.pass) {
+                appState.isAdmin = true;
+                saveStateToStorage();
+                closeModal('adminLoginModal');
+                updateUI();
+                navigateTo('admin');
+                showNotification('Admin Panel Unlocked Successfully.', 'success');
+            } else {
+                showNotification('Invalid Admin Credentials!', 'error');
+            }
+        }
+
+        function logoutAdmin() {
+            appState.isAdmin = false;
+            saveStateToStorage();
+            updateUI();
+            navigateTo('home');
+        }
+
+        /* ================= CLIENT PORTAL: REAL SERVICE FLOW ================= */
+
+        function populateRealServiceDropdowns() {
+            const mainSel = document.getElementById('realMainAreaSelect');
+            mainSel.innerHTML = '';
+            appState.locations.forEach((loc, idx) => {
+                const opt = document.createElement('option');
+                opt.value = loc.name;
+                opt.innerText = loc.name;
+                mainSel.appendChild(opt);
+            });
+
+            onRealMainAreaChange();
+
+            // Populate 10-day dates
+            const dateSel = document.getElementById('realDateSelect');
+            dateSel.innerHTML = '';
+            const dates = getNext10Days();
+            dates.forEach(d => {
+                const opt = document.createElement('option');
+                opt.value = d;
+                opt.innerText = d;
+                dateSel.appendChild(opt);
+            });
+
+            onRealCategoryOrDurationChange();
+        }
+
+        function onRealMainAreaChange() {
+            const mainName = document.getElementById('realMainAreaSelect').value;
+            const subSel = document.getElementById('realSubAreaSelect');
+            subSel.innerHTML = '';
+
+            const loc = appState.locations.find(l => l.name === mainName);
+            if (loc && loc.subAreas) {
+                loc.subAreas.forEach(sub => {
+                    const opt = document.createElement('option');
+                    opt.value = sub.name;
+                    opt.innerText = `${sub.name} [${sub.type}]`;
+                    subSel.appendChild(opt);
+                });
+            }
+
+            renderRealCollections();
+        }
+
+        function onRealSubAreaChange() {
+            renderRealCollections();
+        }
+
+        function onRealCategoryOrDurationChange() {
+            const cat = document.getElementById('realCategorySelect').value;
+            const dur = document.getElementById('realDurationSelect').value;
+
+            let rate = REAL_RATES[cat][dur] || 2000;
+            
+            // Calculation Rule: Total=2000 -> Advance=50% (1000). Total > 2000 -> Advance fixed at 1230.
+            let advance = rate === 2000 ? 1000 : 1230;
+            let remaining = rate - advance;
+
+            document.getElementById('realCalculatedTotalRate').innerText = `${rate} BDT`;
+            document.getElementById('realCalculatedAdvance').innerText = `${advance} BDT`;
+            document.getElementById('realCalculatedRemaining').innerText = `${remaining} BDT`;
+        }
+
+        function renderRealCollections() {
+            const subArea = document.getElementById('realSubAreaSelect').value;
+            const date = document.getElementById('realDateSelect').value;
+            const container = document.getElementById('realCollectionsGrid');
+            container.innerHTML = '';
+
+            const matrixKey = `${date}_${subArea}`;
+            const availableCodes = appState.realMatrix[matrixKey] || [];
+
+            const profiles = appState.collections.filter(c => availableCodes.includes(c.code) && c.available);
+            document.getElementById('realAvailableCountBadge').innerText = `${profiles.length} Available`;
+
+            if (profiles.length === 0) {
+                container.innerHTML = `
+                    <div class="sm:col-span-2 p-8 text-center glass-card rounded-2xl border border-slate-800 text-slate-400">
+                        <i class="fa-solid fa-calendar-xmark text-3xl mb-2 text-gold-500/50"></i>
+                        <p class="text-sm">No profiles scheduled for this specific date and sub-area.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            profiles.forEach(p => {
+                const card = document.createElement('div');
+                card.className = "glass-card rounded-2xl p-4 border border-slate-800 hover:border-gold-500/40 transition flex flex-col justify-between space-y-4";
+                card.innerHTML = `
+                    <div class="space-y-3">
+                        <div class="relative w-full h-48 rounded-xl bg-slate-900 border border-slate-800 overflow-hidden cursor-pointer" onclick="openGalleryModal('${p.id}')">
+                            <img src="${p.photos[0] || 'https://placehold.co/600x800/1e293b/facc15?text=Profile'}" class="w-full h-full object-cover">
+                            <span class="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-slate-950/80 border border-gold-500/40 text-gold-400 font-bold text-[10px]">
+                                Code: #${p.code}
+                            </span>
+                            <div class="absolute bottom-2 left-2 px-2 py-0.5 rounded-md bg-slate-950/80 text-slate-200 text-[10px] flex items-center gap-1">
+                                <i class="fa-solid fa-images text-gold-400"></i> ${p.photos.length} Photos
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <h4 class="font-bold text-white text-base">${p.name}</h4>
+                            <span class="px-2 py-0.5 rounded bg-slate-800 text-gold-400 text-[10px] font-bold">${p.category}</span>
+                        </div>
+                    </div>
+                    <button onclick="startRealBooking('${p.id}')" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold text-xs shadow-md shadow-emerald-500/10 transition">
+                        Proceed to Booking
+                    </button>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function startRealBooking(profileId) {
+            if (!appState.currentUser) {
+                openModal('loginModal');
+                showNotification('Please login to proceed with booking', 'info');
+                return;
+            }
+
+            const profile = appState.collections.find(c => c.id === profileId);
+            const mainArea = document.getElementById('realMainAreaSelect').value;
+            const subArea = document.getElementById('realSubAreaSelect').value;
+            const date = document.getElementById('realDateSelect').value;
+            const cat = document.getElementById('realCategorySelect').value;
+            const dur = document.getElementById('realDurationSelect').value;
+
+            const totalRate = REAL_RATES[cat][dur] || 2000;
+            const advance = totalRate === 2000 ? 1000 : 1230;
+
+            pendingCheckout = {
+                serviceType: 'Real Service',
+                profileName: `${profile.name} (Code #${profile.code})`,
+                profileCode: profile.code,
+                locationDetails: `${mainArea} - ${subArea} | Date: ${date} (${dur})`,
+                totalRate: totalRate,
+                advanceAmount: advance,
+                remainingHandCash: totalRate - advance
+            };
+
+            populateCheckoutModal();
+            navigateTo('checkout');
+        }
+
+        /* ================= CLIENT PORTAL: VIDEO SERVICE FLOW ================= */
+
+        function onVideoCategoryOrPackageChange() {
+            const cat = document.getElementById('videoCategorySelect').value;
+            const pkg = document.getElementById('videoPackageSelect').value;
+
+            const rate = VIDEO_RATES[cat][pkg] || 750;
+            document.getElementById('videoCalculatedTotalRate').innerText = `${rate} BDT`;
+            document.getElementById('videoCalculatedAdvance').innerText = `100% (${rate} BDT)`;
+
+            renderVideoCollections();
+        }
+
+        function renderVideoCollections() {
+            const cat = document.getElementById('videoCategorySelect').value;
+            const container = document.getElementById('videoCollectionsGrid');
+            container.innerHTML = '';
+
+            const profiles = appState.collections.filter(c => appState.todayVideoCodes.includes(c.code) && c.available && c.category === cat);
+            document.getElementById('videoAvailableCountBadge').innerText = `${profiles.length} Profiles`;
+
+            if (profiles.length === 0) {
+                container.innerHTML = `
+                    <div class="sm:col-span-2 p-8 text-center glass-card rounded-2xl border border-slate-800 text-slate-400">
+                        <i class="fa-solid fa-video-slash text-3xl mb-2 text-purple-400"></i>
+                        <p class="text-sm">No active video call profiles for this category today.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            profiles.forEach(p => {
+                const card = document.createElement('div');
+                card.className = "glass-card rounded-2xl p-4 border border-slate-800 hover:border-purple-500/40 transition flex flex-col justify-between space-y-4";
+                card.innerHTML = `
+                    <div class="space-y-3">
+                        <div class="relative w-full h-48 rounded-xl bg-slate-900 border border-slate-800 overflow-hidden cursor-pointer" onclick="openGalleryModal('${p.id}')">
+                            <img src="${p.photos[0] || 'https://placehold.co/600x800/1e293b/facc15?text=Profile'}" class="w-full h-full object-cover">
+                            <span class="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-slate-950/80 border border-purple-500/40 text-purple-300 font-bold text-[10px]">
+                                Code: #${p.code}
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <h4 class="font-bold text-white text-base">${p.name}</h4>
+                            <span class="px-2 py-0.5 rounded bg-purple-950 text-purple-300 text-[10px] font-bold">Today Active</span>
+                        </div>
+                    </div>
+                    <button onclick="startVideoBooking('${p.id}')" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs shadow-md shadow-purple-600/10 transition">
+                        Select & Pay
+                    </button>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function startVideoBooking(profileId) {
+            if (!appState.currentUser) {
+                openModal('loginModal');
+                showNotification('Please login to proceed with booking', 'info');
+                return;
+            }
+
+            const profile = appState.collections.find(c => c.id === profileId);
+            const cat = document.getElementById('videoCategorySelect').value;
+            const pkg = document.getElementById('videoPackageSelect').value;
+            const rate = VIDEO_RATES[cat][pkg] || 750;
+
+            pendingCheckout = {
+                serviceType: 'Video Call Service',
+                profileName: `${profile.name} (Code #${profile.code})`,
+                profileCode: profile.code,
+                locationDetails: `Online Video Session | Duration: ${pkg}`,
+                totalRate: rate,
+                advanceAmount: rate,
+                remainingHandCash: 0
+            };
+
+            populateCheckoutModal();
+            navigateTo('checkout');
+        }
+
+        /* ================= CLIENT PORTAL: LIVE SHOW FLOW ================= */
+
+        function startLiveShowBooking(passTitle, price) {
+            if (!appState.currentUser) {
+                openModal('loginModal');
+                showNotification('Please login to proceed with pass booking', 'info');
+                return;
+            }
+
+            pendingCheckout = {
+                serviceType: 'Live Show Pass',
+                profileName: passTitle,
+                profileCode: 'LIVESHOW',
+                locationDetails: 'Online VIP Streaming Channel Access',
+                totalRate: price,
+                advanceAmount: price,
+                remainingHandCash: 0
+            };
+
+            populateCheckoutModal();
+            navigateTo('checkout');
+        }
+
+        /* ================= CHECKOUT & PAYMENT PROOF SUBMISSION ================= */
+
+        function populateCheckoutModal() {
+            if (!pendingCheckout) return;
+
+            document.getElementById('checkoutServiceType').innerText = pendingCheckout.serviceType;
+            document.getElementById('checkoutCollectionName').innerText = pendingCheckout.profileName;
+            document.getElementById('checkoutLocationDetails').innerText = pendingCheckout.locationDetails;
+            document.getElementById('checkoutAdvanceAmount').innerText = `${pendingCheckout.advanceAmount} BDT`;
+
+            const handCashNotice = document.getElementById('checkoutHandCashNotice');
+            if (pendingCheckout.remainingHandCash > 0) {
+                handCashNotice.innerText = `Remaining balance (${pendingCheckout.remainingHandCash} BDT) will be paid in hand cash upon service arrival.`;
+                handCashNotice.classList.remove('hidden');
+            } else {
+                handCashNotice.classList.add('hidden');
+            }
+        }
+
+        function togglePaymentProofType(type) {
+            if (type === 'Send Money') {
+                document.getElementById('proofSendMoneyBlock').classList.remove('hidden');
+                document.getElementById('proofCashInBlock').classList.add('hidden');
+            } else {
+                document.getElementById('proofSendMoneyBlock').classList.add('hidden');
+                document.getElementById('proofCashInBlock').classList.remove('hidden');
+            }
+        }
+
+        function submitBookingPayment(e) {
+            e.preventDefault();
+            if (!pendingCheckout || !appState.currentUser) return;
+
+            const payType = document.querySelector('input[name="payType"]:checked').value;
+            let proofData = '';
+
+            if (payType === 'Send Money') {
+                const fileInput = document.getElementById('proofScreenshotFile');
+                if (fileInput.files.length === 0) {
+                    showNotification('Please upload payment receipt screenshot', 'error');
+                    return;
+                }
+                proofData = 'Screenshot Uploaded';
+            } else {
+                const last4 = document.getElementById('proofLast4Digits').value.trim();
+                if (!last4 || last4.length < 4) {
+                    showNotification('Please enter last 4 digits', 'error');
+                    return;
+                }
+                proofData = `Cash In Last 4 Digits: ${last4}`;
+            }
+
+            const newBooking = {
+                id: 'bk_' + Date.now(),
+                userId: appState.currentUser.id,
+                userName: appState.currentUser.name,
+                userPhone: appState.currentUser.phone,
+                serviceType: pendingCheckout.serviceType,
+                profileName: pendingCheckout.profileName,
+                locationDetails: pendingCheckout.locationDetails,
+                advanceAmount: pendingCheckout.advanceAmount,
+                payType: payType,
+                proofData: proofData,
+                status: 'Pending Confirmation',
+                timestamp: new Date().toLocaleString()
+            };
+
+            appState.bookings.unshift(newBooking);
+            saveStateToStorage();
+
+            showNotification(currentLang === 'bn' ? 'পেমেন্ট গ্রহন হয়েছে, কনফার্মেশন এর জন্য অপেক্ষা করুন। অ্যাডমিন প্যানেল থেকে কিছু সময়ের মধ্যে কনফার্ম করা হবে।' : 'Payment received. Please wait for admin confirmation.', 'success');
+            
+            pendingCheckout = null;
+            navigateTo('history');
+        }
+
+        /* ================= BOOKING HISTORY DISPLAY ================= */
+
+        function renderClientBookingHistory() {
+            const container = document.getElementById('historyListContainer');
+            container.innerHTML = '';
+
+            const userBookings = appState.bookings.filter(b => b.userId === appState.currentUser.id);
+
+            if (userBookings.length === 0) {
+                container.innerHTML = `
+                    <div class="p-8 text-center glass-card rounded-2xl border border-slate-800 text-slate-400">
+                        <i class="fa-solid fa-receipt text-3xl mb-2 text-gold-500/50"></i>
+                        <p class="text-sm">You have no booking history records.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            userBookings.forEach(b => {
+                const card = document.createElement('div');
+                card.className = "glass-card rounded-2xl p-5 border border-slate-800 space-y-3";
+                
+                const statusBadge = b.status === 'Confirmed' ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' :
+                                    b.status === 'Cancelled' ? 'bg-rose-500/20 text-rose-300 border-rose-500/40' :
+                                    'bg-amber-500/20 text-amber-300 border-amber-500/40';
+
+                card.innerHTML = `
+                    <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
+                        <div>
+                            <span class="text-xs font-bold text-gold-400">${b.serviceType}</span>
+                            <h4 class="text-base font-bold text-white">${b.profileName}</h4>
+                        </div>
+                        <span class="px-3 py-1 rounded-full border text-xs font-bold ${statusBadge}">
+                            ${b.status}
+                        </span>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-300">
+                        <div><strong>Details:</strong> ${b.locationDetails}</div>
+                        <div><strong>Paid Advance:</strong> ${b.advanceAmount} BDT</div>
+                        <div><strong>Proof:</strong> ${b.payType} (${b.proofData})</div>
+                        <div><strong>Submitted:</strong> ${b.timestamp}</div>
+                    </div>
+                    <p class="text-[11px] text-slate-400 italic pt-1 border-t border-slate-800/50">
+                        বুকিং ক্যানসেল করতে হেল্প লাইন এ যোগাযোগ করুন। (To cancel booking, contact Helpline).
+                    </p>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        /* ================= MEDIA GALLERY MODAL SLIDER ================= */
+
+        function openGalleryModal(profileId) {
+            const profile = appState.collections.find(c => c.id === profileId);
+            if (!profile) return;
+
+            activeGallery.photos = profile.photos || [];
+            activeGallery.video = profile.video || null;
+            activeGallery.index = 0;
+
+            document.getElementById('galleryModalTitle').innerText = `${profile.name} (Code #${profile.code})`;
+            renderGalleryMainSlide();
+            openModal('galleryModal');
+        }
+
+        function renderGalleryMainSlide() {
+            const imgEl = document.getElementById('galleryMainImg');
+            const videoEl = document.getElementById('galleryMainVideo');
+            const thumbsRow = document.getElementById('galleryThumbnailsRow');
+            thumbsRow.innerHTML = '';
+
+            const currentSrc = activeGallery.photos[activeGallery.index];
+
+            if (currentSrc) {
+                imgEl.src = currentSrc;
+                imgEl.classList.remove('hidden');
+                videoEl.classList.add('hidden');
+            }
+
+            activeGallery.photos.forEach((src, idx) => {
+                const thumb = document.createElement('img');
+                thumb.src = src;
+                thumb.className = `w-14 h-14 rounded-lg object-cover cursor-pointer border-2 ${idx === activeGallery.index ? 'border-gold-500' : 'border-transparent opacity-60'}`;
+                thumb.onclick = () => { activeGallery.index = idx; renderGalleryMainSlide(); };
+                thumbsRow.appendChild(thumb);
+            });
+        }
+
+        function prevGallerySlide() {
+            if (activeGallery.photos.length === 0) return;
+            activeGallery.index = (activeGallery.index - 1 + activeGallery.photos.length) % activeGallery.photos.length;
+            renderGalleryMainSlide();
+        }
+
+        function nextGallerySlide() {
+            if (activeGallery.photos.length === 0) return;
+            activeGallery.index = (activeGallery.index + 1) % activeGallery.photos.length;
+            renderGalleryMainSlide();
+        }
+
+        /* ================= ADMIN DASHBOARD PANELS ================= */
+
+        function renderAdminDashboard() {
+            renderAdminUsers();
+            renderAdminBookings();
+            renderAdminCollections();
+            renderAdminMatrixToggles();
+            renderAdminLocations();
+            renderAdminSettings();
+        }
+
+        function switchAdminTab(tabName) {
+            ['users', 'bookings', 'collections', 'matrix', 'locations', 'settings'].forEach(t => {
+                document.getElementById(`adminTab${t.charAt(0).toUpperCase() + t.slice(1)}`).classList.add('hidden');
+            });
+
+            document.querySelectorAll('.admin-tab-btn').forEach(btn => {
+                btn.className = "admin-tab-btn px-4 py-2 rounded-xl text-xs font-bold border border-slate-800 bg-slate-900 text-slate-400 transition whitespace-nowrap";
+            });
+
+            document.getElementById(`adminTab${tabName.charAt(0).toUpperCase() + tabName.slice(1)}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`tabBtn${tabName.charAt(0).toUpperCase() + tabName.slice(1)}`);
+            if (activeBtn) activeBtn.className = "admin-tab-btn px-4 py-2 rounded-xl text-xs font-bold border bg-gold-500 text-slate-950 border-gold-500 transition whitespace-nowrap";
+        }
+
+        /* ADMIN TAB 1: USER & PASSWORDS */
+        function renderAdminUsers() {
+            const tbody = document.getElementById('adminUserTableBody');
+            tbody.innerHTML = '';
+
+            document.getElementById('adminUserCount').innerText = `Total: ${appState.clients.length} Clients`;
+
+            appState.clients.forEach(c => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-900/50";
+                tr.innerHTML = `
+                    <td class="p-3.5 font-bold text-white">${c.name}</td>
+                    <td class="p-3.5 font-mono text-gold-400">${c.phone}</td>
+                    <td class="p-3.5 font-mono text-amber-200 font-bold">${c.password}</td>
+                    <td class="p-3.5">
+                        <span class="px-2 py-0.5 rounded text-[10px] font-bold ${c.banned ? 'bg-rose-500/20 text-rose-400' : 'bg-emerald-500/20 text-emerald-400'}">
+                            ${c.banned ? 'Banned' : 'Active'}
+                        </span>
+                    </td>
+                    <td class="p-3.5 text-right space-x-2">
+                        <button onclick="toggleUserBan('${c.id}')" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 text-[11px] font-bold">
+                            ${c.banned ? 'Unban' : 'Ban'}
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function toggleUserBan(userId) {
+            const user = appState.clients.find(c => c.id === userId);
+            if (user) {
+                user.banned = !user.banned;
+                saveStateToStorage();
+                renderAdminUsers();
+                showNotification(`User account state updated.`, 'info');
+            }
+        }
+
+        /* ADMIN TAB 2: BOOKINGS APPROVAL & DELETION */
+        function renderAdminBookings() {
+            const container = document.getElementById('adminBookingsGrid');
+            container.innerHTML = '';
+
+            document.getElementById('adminBookingCount').innerText = `Total: ${appState.bookings.length} Bookings`;
+
+            appState.bookings.forEach(b => {
+                const card = document.createElement('div');
+                card.className = "glass-card rounded-2xl p-4 border border-slate-800 space-y-3";
+                card.innerHTML = `
+                    <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                        <div>
+                            <span class="text-xs font-bold text-gold-400">${b.serviceType}</span>
+                            <h4 class="font-bold text-white text-sm">${b.profileName}</h4>
+                        </div>
+                        <span class="px-2 py-0.5 rounded bg-slate-800 text-xs font-bold text-amber-300">${b.status}</span>
+                    </div>
+                    <div class="text-xs text-slate-300 space-y-1">
+                        <div><strong>Client:</strong> ${b.userName} (${b.userPhone})</div>
+                        <div><strong>Amount:</strong> ${b.advanceAmount} BDT</div>
+                        <div><strong>Proof:</strong> ${b.payType} - ${b.proofData}</div>
+                    </div>
+                    <div class="flex gap-2 pt-2 border-t border-slate-800">
+                        <button onclick="updateBookingStatus('${b.id}', 'Confirmed')" class="flex-1 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs">
+                            Confirm
+                        </button>
+                        <button onclick="deleteCancelBooking('${b.id}')" class="flex-1 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs">
+                            Cancel & Delete
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function updateBookingStatus(bookingId, newStatus) {
+            const b = appState.bookings.find(bk => bk.id === bookingId);
+            if (b) {
+                b.status = newStatus;
+                saveStateToStorage();
+                renderAdminBookings();
+                showNotification('Booking status updated.', 'success');
+            }
+        }
+
+        function deleteCancelBooking(bookingId) {
+            appState.bookings = appState.bookings.filter(bk => bk.id !== bookingId);
+            saveStateToStorage();
+            renderAdminBookings();
+            showNotification('Fake / invalid booking cancelled and deleted from system.', 'info');
+        }
+
+        /* ADMIN TAB 3: COLLECTION MANAGER (MAX 500) */
+        function saveNewCollectionProfile(e) {
+            e.preventDefault();
+            if (appState.collections.length >= 500) {
+                showNotification('Maximum 500 collection profiles reached!', 'error');
+                return;
+            }
+
+            const name = document.getElementById('colInputName').value.trim();
+            const code = document.getElementById('colInputCode').value.trim();
+            const cat = document.getElementById('colInputCategory').value;
+            const customRate = document.getElementById('colInputCustomRate').value;
+
+            // Photos file handler
+            const photosInput = document.getElementById('colInputPhotos');
+            let photos = [];
+            if (photosInput.files.length > 0) {
+                for(let i=0; i<Math.min(photosInput.files.length, 5); i++) {
+                    photos.push(URL.createObjectURL(photosInput.files[i]));
+                }
+            } else {
+                photos.push(`https://placehold.co/600x800/1e293b/facc15?text=Profile+Code+${code}`);
+            }
+
+            const newCol = {
+                id: 'col_' + Date.now(),
+                name,
+                code,
+                category: cat,
+                photos,
+                video: null,
+                customRate: customRate ? Number(customRate) : null,
+                available: true
+            };
+
+            appState.collections.unshift(newCol);
+            runAutoMatrixAssignment();
+            saveStateToStorage();
+            renderAdminCollections();
+            showNotification('New collection profile created successfully!', 'success');
+        }
+
+        function renderAdminCollections() {
+            const container = document.getElementById('adminCollectionsGrid');
+            container.innerHTML = '';
+            document.getElementById('adminCollectionCount').innerText = `${appState.collections.length} Profiles`;
+
+            appState.collections.forEach(p => {
+                const card = document.createElement('div');
+                card.className = "glass-card rounded-2xl p-4 border border-slate-800 space-y-3";
+                card.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <img src="${p.photos[0]}" class="w-12 h-12 rounded-xl object-cover">
+                        <div class="flex-grow">
+                            <h4 class="font-bold text-white text-sm">${p.name}</h4>
+                            <span class="text-xs text-gold-400 font-mono">Code: #${p.code} (${p.category})</span>
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="toggleCollectionAvailability('${p.id}')" class="flex-1 py-1.5 rounded-lg border text-xs font-bold ${p.available ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' : 'bg-slate-800 text-slate-400 border-slate-700'}">
+                            ${p.available ? 'Available' : 'Unavailable'}
+                        </button>
+                        <button onclick="deleteCollectionProfile('${p.id}')" class="px-3 py-1.5 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 font-bold text-xs border border-rose-500/40">
+                            Delete
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function toggleCollectionAvailability(colId) {
+            const col = appState.collections.find(c => c.id === colId);
+            if (col) {
+                col.available = !col.available;
+                runAutoMatrixAssignment();
+                saveStateToStorage();
+                renderAdminCollections();
+            }
+        }
+
+        function deleteCollectionProfile(colId) {
+            appState.collections = appState.collections.filter(c => c.id !== colId);
+            runAutoMatrixAssignment();
+            saveStateToStorage();
+            renderAdminCollections();
+        }
+
+        /* ADMIN TAB 4: TODAY'S VIDEO TOGGLE & MATRIX AUTO SYNC */
+        function renderAdminMatrixToggles() {
+            const container = document.getElementById('adminTodayVideoToggleGrid');
+            container.innerHTML = '';
+
+            appState.collections.forEach(p => {
+                const isActive = appState.todayVideoCodes.includes(p.code);
+                const btn = document.createElement('button');
+                btn.className = `p-2.5 rounded-xl border text-xs font-bold transition flex items-center justify-between ${
+                    isActive ? 'bg-purple-600 text-white border-purple-400' : 'bg-slate-900 text-slate-400 border-slate-800'
+                }`;
+                btn.onclick = () => toggleTodayVideoCode(p.code);
+                btn.innerHTML = `<span>#${p.code} ${p.name}</span> <i class="fa-solid ${isActive ? 'fa-check' : 'fa-plus'}"></i>`;
+                container.appendChild(btn);
+            });
+        }
+
+        function toggleTodayVideoCode(code) {
+            if (appState.todayVideoCodes.includes(code)) {
+                appState.todayVideoCodes = appState.todayVideoCodes.filter(c => c !== code);
+            } else {
+                appState.todayVideoCodes.push(code);
+            }
+            saveStateToStorage();
+            renderAdminMatrixToggles();
+        }
+
+        /* ADMIN TAB 5: LOCATIONS MANAGER */
+        function renderAdminLocations() {
+            const container = document.getElementById('adminLocationsList');
+            container.innerHTML = '';
+
+            const subMainSel = document.getElementById('addSubAreaMainSelect');
+            subMainSel.innerHTML = '';
+
+            appState.locations.forEach(loc => {
+                const opt = document.createElement('option');
+                opt.value = loc.name;
+                opt.innerText = loc.name;
+                subMainSel.appendChild(opt);
+
+                const card = document.createElement('div');
+                card.className = "glass-card rounded-2xl p-4 border border-slate-800 space-y-2";
+                card.innerHTML = `
+                    <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                        <h4 class="font-bold text-emerald-400 text-base">${loc.name}</h4>
+                        <button onclick="deleteAdminMainArea('${loc.name}')" class="text-rose-400 hover:text-rose-300 text-xs font-bold">
+                            Delete Main Area
+                        </button>
+                    </div>
+                    <div class="flex flex-wrap gap-2 pt-1">
+                        ${loc.subAreas.map(s => `
+                            <span class="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-xs text-slate-300 flex items-center gap-2">
+                                ${s.name} [${s.type}]
+                                <i onclick="deleteAdminSubArea('${loc.name}', '${s.name}')" class="fa-solid fa-xmark text-slate-500 hover:text-rose-400 cursor-pointer"></i>
+                            </span>
+                        `).join('')}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function addAdminMainArea(e) {
+            e.preventDefault();
+            const name = document.getElementById('addMainAreaInput').value.trim();
+            if (!name) return;
+
+            if (!appState.locations.some(l => l.name === name)) {
+                appState.locations.push({ name, subAreas: [] });
+                saveStateToStorage();
+                renderAdminLocations();
+                document.getElementById('addMainAreaInput').value = '';
+            }
+        }
+
+        function addAdminSubArea(e) {
+            e.preventDefault();
+            const mainName = document.getElementById('addSubAreaMainSelect').value;
+            const subName = document.getElementById('addSubAreaNameInput').value.trim();
+            const subType = document.getElementById('addSubAreaTypeSelect').value;
+
+            const loc = appState.locations.find(l => l.name === mainName);
+            if (loc && !loc.subAreas.some(s => s.name === subName)) {
+                loc.subAreas.push({ name: subName, type: subType });
+                runAutoMatrixAssignment();
+                saveStateToStorage();
+                renderAdminLocations();
+                document.getElementById('addSubAreaNameInput').value = '';
+            }
+        }
+
+        function deleteAdminMainArea(mainName) {
+            appState.locations = appState.locations.filter(l => l.name !== mainName);
+            runAutoMatrixAssignment();
+            saveStateToStorage();
+            renderAdminLocations();
+        }
+
+        function deleteAdminSubArea(mainName, subName) {
+            const loc = appState.locations.find(l => l.name === mainName);
+            if (loc) {
+                loc.subAreas = loc.subAreas.filter(s => s.name !== subName);
+                runAutoMatrixAssignment();
+                saveStateToStorage();
+                renderAdminLocations();
+            }
+        }
+
+        /* ADMIN TAB 6: CASHIER ACCOUNTS & SERVICES */
+        function renderAdminSettings() {
+            document.getElementById('adminBkashInput').value = appState.cashierNumbers.bkash;
+            document.getElementById('adminNagadInput').value = appState.cashierNumbers.nagad;
+            document.getElementById('adminRocketInput').value = appState.cashierNumbers.rocket;
+
+            const container = document.getElementById('adminServicesList');
+            container.innerHTML = '';
+
+            appState.services.forEach(s => {
+                const item = document.createElement('div');
+                item.className = "p-3 rounded-xl bg-slate-900 border border-slate-800 flex justify-between items-center text-xs";
+                item.innerHTML = `
+                    <span class="font-bold text-slate-200">${s.name}</span>
+                    <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold">Active</span>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function saveCashierNumbers(e) {
+            e.preventDefault();
+            appState.cashierNumbers.bkash = document.getElementById('adminBkashInput').value.trim();
+            appState.cashierNumbers.nagad = document.getElementById('adminNagadInput').value.trim();
+            appState.cashierNumbers.rocket = document.getElementById('adminRocketInput').value.trim();
+
+            saveStateToStorage();
+            updateUI();
+            showNotification('Cashier mobile numbers updated successfully!', 'success');
+        }
+    </script>
+</body>
+</html>
